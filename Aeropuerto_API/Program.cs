@@ -32,6 +32,13 @@ builder.Services.AddScoped<CategoriaRepuestoService>();
 builder.Services.AddScoped<HangarService>();
 builder.Services.AddScoped<MantenimientoAvionService>();
 builder.Services.AddScoped<MovimientoRepuestoService>();
+builder.Services.AddScoped<RepuestoUtilizadoService>();
+builder.Services.AddScoped<AsignacionHangarService>();
+builder.Services.AddScoped<TripulacionService>();
+builder.Services.AddScoped<DetalleVentaBoletoService>();
+builder.Services.AddScoped<DiasVueloService>();
+builder.Services.AddScoped<EscalaTecnicaService>();
+builder.Services.AddScoped<OrdenCompraRepuestoService>();
 
 
 builder.Services.AddControllers();
