@@ -1,0 +1,199 @@
+using AeropuertoAPI.DTOs;
+using AeropuertoAPI.Models;
+using Oracle.ManagedDataAccess.Client;
+
+namespace AeropuertoAPI.Services
+{
+    public class ArrestoService
+    {
+        private readonly string _connectionString;
+
+        public ArrestoService(DatabaseSettings settings)
+        {
+            _connectionString = settings.ConnectionString;
+        }
+
+        public async Task<List<ArrestoResponseDto>> ObtenerTodosAsync()
+        {
+            var lista = new List<ArrestoResponseDto>();
+
+            const string query = @"
+                SELECT
+                    ARR_ID_ARRESTO,
+                    ARR_ID_PASAJERO,
+                    ARR_ID_VUELO,
+                    ARR_ID_AEROPUERTO,
+                    ARR_FECHA_HORA_ARRESTO,
+                    ARR_MOTIVO,
+                    ARR_AUTORIDAD_CARGO,
+                    ARR_DESCRIPCION_INCIDENTE,
+                    ARR_UBICACION_ARRESTO,
+                    ARR_ESTADO_CASO,
+                    ARR_NUMERO_EXPEDIENTE
+                FROM AER_ARRESTO
+                ORDER BY ARR_ID_ARRESTO";
+
+            await using var conn = new OracleConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new OracleCommand(query, conn);
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                lista.Add(MapearArresto(reader));
+            }
+
+            return lista;
+        }
+
+        public async Task<ArrestoResponseDto?> ObtenerPorIdAsync(int id)
+        {
+            const string query = @"
+                SELECT
+                    ARR_ID_ARRESTO,
+                    ARR_ID_PASAJERO,
+                    ARR_ID_VUELO,
+                    ARR_ID_AEROPUERTO,
+                    ARR_FECHA_HORA_ARRESTO,
+                    ARR_MOTIVO,
+                    ARR_AUTORIDAD_CARGO,
+                    ARR_DESCRIPCION_INCIDENTE,
+                    ARR_UBICACION_ARRESTO,
+                    ARR_ESTADO_CASO,
+                    ARR_NUMERO_EXPEDIENTE
+                FROM AER_ARRESTO
+                WHERE ARR_ID_ARRESTO = :id";
+
+            await using var conn = new OracleConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new OracleCommand(query, conn);
+            cmd.Parameters.Add("id", OracleDbType.Int32).Value = id;
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+                return MapearArresto(reader);
+
+            return null;
+        }
+
+        public async Task<bool> CrearAsync(ArrestoCreateDto dto)
+        {
+            const string query = @"
+                INSERT INTO AER_ARRESTO
+                (
+                    ARR_ID_PASAJERO,
+                    ARR_ID_VUELO,
+                    ARR_ID_AEROPUERTO,
+                    ARR_FECHA_HORA_ARRESTO,
+                    ARR_MOTIVO,
+                    ARR_AUTORIDAD_CARGO,
+                    ARR_DESCRIPCION_INCIDENTE,
+                    ARR_UBICACION_ARRESTO,
+                    ARR_ESTADO_CASO,
+                    ARR_NUMERO_EXPEDIENTE
+                )
+                VALUES
+                (
+                    :idPasajero,
+                    :idVuelo,
+                    :idAeropuerto,
+                    :fechaHoraArresto,
+                    :motivo,
+                    :autoridadCargo,
+                    :descripcionIncidente,
+                    :ubicacionArresto,
+                    :estadoCaso,
+                    :numeroExpediente
+                )";
+
+            await using var conn = new OracleConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new OracleCommand(query, conn);
+            cmd.Parameters.Add("idPasajero", OracleDbType.Int32).Value = (object?)dto.IdPasajero ?? DBNull.Value;
+            cmd.Parameters.Add("idVuelo", OracleDbType.Int32).Value = (object?)dto.IdVuelo ?? DBNull.Value;
+            cmd.Parameters.Add("idAeropuerto", OracleDbType.Int32).Value = (object?)dto.IdAeropuerto ?? DBNull.Value;
+            cmd.Parameters.Add("fechaHoraArresto", OracleDbType.TimeStamp).Value = dto.FechaHoraArresto ?? DateTime.Now;
+            cmd.Parameters.Add("motivo", OracleDbType.Varchar2).Value = (object?)dto.Motivo ?? DBNull.Value;
+            cmd.Parameters.Add("autoridadCargo", OracleDbType.Varchar2).Value = (object?)dto.AutoridadCargo ?? DBNull.Value;
+            cmd.Parameters.Add("descripcionIncidente", OracleDbType.Clob).Value = (object?)dto.DescripcionIncidente ?? DBNull.Value;
+            cmd.Parameters.Add("ubicacionArresto", OracleDbType.Varchar2).Value = (object?)dto.UbicacionArresto ?? DBNull.Value;
+            cmd.Parameters.Add("estadoCaso", OracleDbType.Varchar2).Value = dto.EstadoCaso ?? "EN_PROCESO";
+            cmd.Parameters.Add("numeroExpediente", OracleDbType.Varchar2).Value = (object?)dto.NumeroExpediente ?? DBNull.Value;
+
+            return await cmd.ExecuteNonQueryAsync() > 0;
+        }
+
+        public async Task<bool> ActualizarAsync(int id, ArrestoUpdateDto dto)
+        {
+            const string query = @"
+                UPDATE AER_ARRESTO
+                SET
+                    ARR_ID_PASAJERO = :idPasajero,
+                    ARR_ID_VUELO = :idVuelo,
+                    ARR_ID_AEROPUERTO = :idAeropuerto,
+                    ARR_FECHA_HORA_ARRESTO = :fechaHoraArresto,
+                    ARR_MOTIVO = :motivo,
+                    ARR_AUTORIDAD_CARGO = :autoridadCargo,
+                    ARR_DESCRIPCION_INCIDENTE = :descripcionIncidente,
+                    ARR_UBICACION_ARRESTO = :ubicacionArresto,
+                    ARR_ESTADO_CASO = :estadoCaso,
+                    ARR_NUMERO_EXPEDIENTE = :numeroExpediente
+                WHERE ARR_ID_ARRESTO = :id";
+
+            await using var conn = new OracleConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new OracleCommand(query, conn);
+            cmd.Parameters.Add("idPasajero", OracleDbType.Int32).Value = (object?)dto.IdPasajero ?? DBNull.Value;
+            cmd.Parameters.Add("idVuelo", OracleDbType.Int32).Value = (object?)dto.IdVuelo ?? DBNull.Value;
+            cmd.Parameters.Add("idAeropuerto", OracleDbType.Int32).Value = (object?)dto.IdAeropuerto ?? DBNull.Value;
+            cmd.Parameters.Add("fechaHoraArresto", OracleDbType.TimeStamp).Value = dto.FechaHoraArresto ?? DateTime.Now;
+            cmd.Parameters.Add("motivo", OracleDbType.Varchar2).Value = (object?)dto.Motivo ?? DBNull.Value;
+            cmd.Parameters.Add("autoridadCargo", OracleDbType.Varchar2).Value = (object?)dto.AutoridadCargo ?? DBNull.Value;
+            cmd.Parameters.Add("descripcionIncidente", OracleDbType.Clob).Value = (object?)dto.DescripcionIncidente ?? DBNull.Value;
+            cmd.Parameters.Add("ubicacionArresto", OracleDbType.Varchar2).Value = (object?)dto.UbicacionArresto ?? DBNull.Value;
+            cmd.Parameters.Add("estadoCaso", OracleDbType.Varchar2).Value = dto.EstadoCaso ?? "EN_PROCESO";
+            cmd.Parameters.Add("numeroExpediente", OracleDbType.Varchar2).Value = (object?)dto.NumeroExpediente ?? DBNull.Value;
+            cmd.Parameters.Add("id", OracleDbType.Int32).Value = id;
+
+            return await cmd.ExecuteNonQueryAsync() > 0;
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            const string query = @"
+                DELETE FROM AER_ARRESTO
+                WHERE ARR_ID_ARRESTO = :id";
+
+            await using var conn = new OracleConnection(_connectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new OracleCommand(query, conn);
+            cmd.Parameters.Add("id", OracleDbType.Int32).Value = id;
+
+            return await cmd.ExecuteNonQueryAsync() > 0;
+        }
+
+        private static ArrestoResponseDto MapearArresto(OracleDataReader reader)
+        {
+            return new ArrestoResponseDto
+            {
+                IdArresto = Convert.ToInt32(reader["ARR_ID_ARRESTO"]),
+                IdPasajero = reader["ARR_ID_PASAJERO"] == DBNull.Value ? null : Convert.ToInt32(reader["ARR_ID_PASAJERO"]),
+                IdVuelo = reader["ARR_ID_VUELO"] == DBNull.Value ? null : Convert.ToInt32(reader["ARR_ID_VUELO"]),
+                IdAeropuerto = reader["ARR_ID_AEROPUERTO"] == DBNull.Value ? null : Convert.ToInt32(reader["ARR_ID_AEROPUERTO"]),
+                FechaHoraArresto = reader["ARR_FECHA_HORA_ARRESTO"] == DBNull.Value ? null : Convert.ToDateTime(reader["ARR_FECHA_HORA_ARRESTO"]),
+                Motivo = reader["ARR_MOTIVO"] == DBNull.Value ? null : reader["ARR_MOTIVO"].ToString(),
+                AutoridadCargo = reader["ARR_AUTORIDAD_CARGO"] == DBNull.Value ? null : reader["ARR_AUTORIDAD_CARGO"].ToString(),
+                DescripcionIncidente = reader["ARR_DESCRIPCION_INCIDENTE"] == DBNull.Value ? null : reader["ARR_DESCRIPCION_INCIDENTE"].ToString(),
+                UbicacionArresto = reader["ARR_UBICACION_ARRESTO"] == DBNull.Value ? null : reader["ARR_UBICACION_ARRESTO"].ToString(),
+                EstadoCaso = reader["ARR_ESTADO_CASO"] == DBNull.Value ? null : reader["ARR_ESTADO_CASO"].ToString(),
+                NumeroExpediente = reader["ARR_NUMERO_EXPEDIENTE"] == DBNull.Value ? null : reader["ARR_NUMERO_EXPEDIENTE"].ToString()
+            };
+        }
+    }
+}
