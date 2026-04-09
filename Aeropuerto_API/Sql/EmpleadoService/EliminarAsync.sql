@@ -1,0 +1,2 @@
+DELETE FROM AER_EMPLEADO
+                WHERE EMP_ID_EMPLEADO = :id

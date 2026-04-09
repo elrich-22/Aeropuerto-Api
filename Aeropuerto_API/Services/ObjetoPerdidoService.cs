@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class ObjetoPerdidoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ObjetoPerdidoService(DatabaseSettings settings)
+        public ObjetoPerdidoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ObjetoPerdidoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ObjetoPerdidoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    OBJ_ID_OBJETO,
-                    OBJ_ID_VUELO,
-                    OBJ_ID_AEROPUERTO,
-                    OBJ_DESCRIPCION,
-                    OBJ_FECHA_REPORTE,
-                    OBJ_UBICACION_ENCONTRADO,
-                    OBJ_ESTADO,
-                    OBJ_NOMBRE_REPORTANTE,
-                    OBJ_CONTACTO_REPORTANTE,
-                    OBJ_FECHA_ENTREGA,
-                    OBJ_NOMBRE_RECLAMANTE
-                FROM AER_OBJETOPERDIDO
-                ORDER BY OBJ_ID_OBJETO";
+            var query = _sqlQueryProvider.GetQuery("ObjetoPerdidoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -49,21 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ObjetoPerdidoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    OBJ_ID_OBJETO,
-                    OBJ_ID_VUELO,
-                    OBJ_ID_AEROPUERTO,
-                    OBJ_DESCRIPCION,
-                    OBJ_FECHA_REPORTE,
-                    OBJ_UBICACION_ENCONTRADO,
-                    OBJ_ESTADO,
-                    OBJ_NOMBRE_REPORTANTE,
-                    OBJ_CONTACTO_REPORTANTE,
-                    OBJ_FECHA_ENTREGA,
-                    OBJ_NOMBRE_RECLAMANTE
-                FROM AER_OBJETOPERDIDO
-                WHERE OBJ_ID_OBJETO = :id";
+            var query = _sqlQueryProvider.GetQuery("ObjetoPerdidoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -81,33 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ObjetoPerdidoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_OBJETOPERDIDO
-                (
-                    OBJ_ID_VUELO,
-                    OBJ_ID_AEROPUERTO,
-                    OBJ_DESCRIPCION,
-                    OBJ_FECHA_REPORTE,
-                    OBJ_UBICACION_ENCONTRADO,
-                    OBJ_ESTADO,
-                    OBJ_NOMBRE_REPORTANTE,
-                    OBJ_CONTACTO_REPORTANTE,
-                    OBJ_FECHA_ENTREGA,
-                    OBJ_NOMBRE_RECLAMANTE
-                )
-                VALUES
-                (
-                    :idVuelo,
-                    :idAeropuerto,
-                    :descripcion,
-                    :fechaReporte,
-                    :ubicacionEncontrado,
-                    :estado,
-                    :nombreReportante,
-                    :contactoReportante,
-                    :fechaEntrega,
-                    :nombreReclamante
-                )";
+            var query = _sqlQueryProvider.GetQuery("ObjetoPerdidoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -129,20 +77,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ObjetoPerdidoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_OBJETOPERDIDO
-                SET
-                    OBJ_ID_VUELO = :idVuelo,
-                    OBJ_ID_AEROPUERTO = :idAeropuerto,
-                    OBJ_DESCRIPCION = :descripcion,
-                    OBJ_FECHA_REPORTE = :fechaReporte,
-                    OBJ_UBICACION_ENCONTRADO = :ubicacionEncontrado,
-                    OBJ_ESTADO = :estado,
-                    OBJ_NOMBRE_REPORTANTE = :nombreReportante,
-                    OBJ_CONTACTO_REPORTANTE = :contactoReportante,
-                    OBJ_FECHA_ENTREGA = :fechaEntrega,
-                    OBJ_NOMBRE_RECLAMANTE = :nombreReclamante
-                WHERE OBJ_ID_OBJETO = :id";
+            var query = _sqlQueryProvider.GetQuery("ObjetoPerdidoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -165,9 +100,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_OBJETOPERDIDO
-                WHERE OBJ_ID_OBJETO = :id";
+            var query = _sqlQueryProvider.GetQuery("ObjetoPerdidoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -197,3 +130,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

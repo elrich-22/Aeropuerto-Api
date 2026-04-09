@@ -1,0 +1,2 @@
+DELETE FROM AER_PLANILLA
+                WHERE PLA_ID_PLANILLA = :id

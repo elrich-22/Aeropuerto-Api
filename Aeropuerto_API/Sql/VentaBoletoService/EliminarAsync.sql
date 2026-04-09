@@ -1,0 +1,2 @@
+DELETE FROM AER_VENTABOLETO
+                WHERE VEN_ID_VENTA = :id

@@ -1,0 +1,26 @@
+INSERT INTO AER_TRANSACCIONPAGO
+                (
+                    TRA_ID_RESERVA,
+                    TRA_ID_METODO_PAGO,
+                    TRA_MONTO_TOTAL,
+                    TRA_MONEDA,
+                    TRA_FECHA_TRANSACCION,
+                    TRA_ESTADO,
+                    TRA_NUMERO_AUTORIZACION,
+                    TRA_REFERENCIA_EXTERNA,
+                    TRA_IP_CLIENTE,
+                    TRA_DETALLES_TARJETA
+                )
+                VALUES
+                (
+                    :idReserva,
+                    :idMetodoPago,
+                    :montoTotal,
+                    :moneda,
+                    :fechaTransaccion,
+                    :estado,
+                    :numeroAutorizacion,
+                    :referenciaExterna,
+                    :ipCliente,
+                    :detallesTarjeta
+                )

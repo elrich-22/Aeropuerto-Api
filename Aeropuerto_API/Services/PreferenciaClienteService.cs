@@ -7,25 +7,19 @@ namespace AeropuertoAPI.Services
     public class PreferenciaClienteService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PreferenciaClienteService(DatabaseSettings settings)
+        public PreferenciaClienteService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PreferenciaClienteResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PreferenciaClienteResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PRF_ID_PREFERENCIA,
-                    PRF_ID_PASAJERO,
-                    PRF_TIPO_PREFERENCIA,
-                    PRF_VALOR_PREFERENCIA,
-                    PRF_FECHA_REGISTRO
-                FROM AER_PREFERENCIACLIENTE
-                ORDER BY PRF_ID_PREFERENCIA";
+            var query = _sqlQueryProvider.GetQuery("PreferenciaClienteService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -43,15 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PreferenciaClienteResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PRF_ID_PREFERENCIA,
-                    PRF_ID_PASAJERO,
-                    PRF_TIPO_PREFERENCIA,
-                    PRF_VALOR_PREFERENCIA,
-                    PRF_FECHA_REGISTRO
-                FROM AER_PREFERENCIACLIENTE
-                WHERE PRF_ID_PREFERENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("PreferenciaClienteService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -69,21 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PreferenciaClienteCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PREFERENCIACLIENTE
-                (
-                    PRF_ID_PASAJERO,
-                    PRF_TIPO_PREFERENCIA,
-                    PRF_VALOR_PREFERENCIA,
-                    PRF_FECHA_REGISTRO
-                )
-                VALUES
-                (
-                    :idPasajero,
-                    :tipoPreferencia,
-                    :valorPreferencia,
-                    :fechaRegistro
-                )";
+            var query = _sqlQueryProvider.GetQuery("PreferenciaClienteService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -99,14 +71,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PreferenciaClienteUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PREFERENCIACLIENTE
-                SET
-                    PRF_ID_PASAJERO = :idPasajero,
-                    PRF_TIPO_PREFERENCIA = :tipoPreferencia,
-                    PRF_VALOR_PREFERENCIA = :valorPreferencia,
-                    PRF_FECHA_REGISTRO = :fechaRegistro
-                WHERE PRF_ID_PREFERENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("PreferenciaClienteService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -123,9 +88,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PREFERENCIACLIENTE
-                WHERE PRF_ID_PREFERENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("PreferenciaClienteService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -149,3 +112,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

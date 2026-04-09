@@ -7,26 +7,19 @@ namespace AeropuertoAPI.Services
     public class CarritoCompraService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public CarritoCompraService(DatabaseSettings settings)
+        public CarritoCompraService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<CarritoCompraResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<CarritoCompraResponseDto>();
 
-            const string query = @"
-                SELECT
-                    CAR_ID_CARRITO,
-                    CAR_ID_PASAJERO,
-                    CAR_SESION_ID,
-                    CAR_FECHA_CREACION,
-                    CAR_FECHA_EXPIRACION,
-                    CAR_ESTADO
-                FROM AER_CARRITOCOMPRA
-                ORDER BY CAR_ID_CARRITO";
+            var query = _sqlQueryProvider.GetQuery("CarritoCompraService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -44,16 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<CarritoCompraResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    CAR_ID_CARRITO,
-                    CAR_ID_PASAJERO,
-                    CAR_SESION_ID,
-                    CAR_FECHA_CREACION,
-                    CAR_FECHA_EXPIRACION,
-                    CAR_ESTADO
-                FROM AER_CARRITOCOMPRA
-                WHERE CAR_ID_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("CarritoCompraService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -71,23 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(CarritoCompraCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_CARRITOCOMPRA
-                (
-                    CAR_ID_PASAJERO,
-                    CAR_SESION_ID,
-                    CAR_FECHA_CREACION,
-                    CAR_FECHA_EXPIRACION,
-                    CAR_ESTADO
-                )
-                VALUES
-                (
-                    :idPasajero,
-                    :sesionId,
-                    :fechaCreacion,
-                    :fechaExpiracion,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("CarritoCompraService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -107,15 +75,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, CarritoCompraUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_CARRITOCOMPRA
-                SET
-                    CAR_ID_PASAJERO = :idPasajero,
-                    CAR_SESION_ID = :sesionId,
-                    CAR_FECHA_CREACION = :fechaCreacion,
-                    CAR_FECHA_EXPIRACION = :fechaExpiracion,
-                    CAR_ESTADO = :estado
-                WHERE CAR_ID_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("CarritoCompraService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -136,9 +96,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_CARRITOCOMPRA
-                WHERE CAR_ID_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("CarritoCompraService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -163,3 +121,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

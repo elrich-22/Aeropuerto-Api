@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,29 +7,19 @@ namespace AeropuertoAPI.Services
     public class HangarService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public HangarService(DatabaseSettings settings)
+        public HangarService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<HangarResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<HangarResponseDto>();
 
-            const string query = @"
-                SELECT
-                    HAN_ID_HANGAR,
-                    HAN_CODIGO_HANGAR,
-                    HAN_NOMBRE,
-                    HAN_ID_AEROPUERTO,
-                    HAN_CAPACIDAD_AVIONES,
-                    HAN_AREA_M2,
-                    HAN_ALTURA_MAXIMA,
-                    HAN_TIPO,
-                    HAN_ESTADO
-                FROM AER_HANGAR
-                ORDER BY HAN_ID_HANGAR";
+            var query = _sqlQueryProvider.GetQuery("HangarService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -47,19 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<HangarResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    HAN_ID_HANGAR,
-                    HAN_CODIGO_HANGAR,
-                    HAN_NOMBRE,
-                    HAN_ID_AEROPUERTO,
-                    HAN_CAPACIDAD_AVIONES,
-                    HAN_AREA_M2,
-                    HAN_ALTURA_MAXIMA,
-                    HAN_TIPO,
-                    HAN_ESTADO
-                FROM AER_HANGAR
-                WHERE HAN_ID_HANGAR = :id";
+            var query = _sqlQueryProvider.GetQuery("HangarService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -77,29 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(HangarCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_HANGAR
-                (
-                    HAN_CODIGO_HANGAR,
-                    HAN_NOMBRE,
-                    HAN_ID_AEROPUERTO,
-                    HAN_CAPACIDAD_AVIONES,
-                    HAN_AREA_M2,
-                    HAN_ALTURA_MAXIMA,
-                    HAN_TIPO,
-                    HAN_ESTADO
-                )
-                VALUES
-                (
-                    :codigoHangar,
-                    :nombre,
-                    :idAeropuerto,
-                    :capacidadAviones,
-                    :areaM2,
-                    :alturaMaxima,
-                    :tipo,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("HangarService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -119,18 +75,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, HangarUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_HANGAR
-                SET
-                    HAN_CODIGO_HANGAR = :codigoHangar,
-                    HAN_NOMBRE = :nombre,
-                    HAN_ID_AEROPUERTO = :idAeropuerto,
-                    HAN_CAPACIDAD_AVIONES = :capacidadAviones,
-                    HAN_AREA_M2 = :areaM2,
-                    HAN_ALTURA_MAXIMA = :alturaMaxima,
-                    HAN_TIPO = :tipo,
-                    HAN_ESTADO = :estado
-                WHERE HAN_ID_HANGAR = :id";
+            var query = _sqlQueryProvider.GetQuery("HangarService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -151,9 +96,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_HANGAR
-                WHERE HAN_ID_HANGAR = :id";
+            var query = _sqlQueryProvider.GetQuery("HangarService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

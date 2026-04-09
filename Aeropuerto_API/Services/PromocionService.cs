@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class PromocionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PromocionService(DatabaseSettings settings)
+        public PromocionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PromocionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PromocionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PRO_ID_PROMOCION,
-                    PRO_CODIGO_PROMOCION,
-                    PRO_DESCRIPCION,
-                    PRO_TIPO_DESCUENTO,
-                    PRO_VALOR_DESCUENTO,
-                    PRO_FECHA_INICIO,
-                    PRO_FECHA_FIN,
-                    PRO_USOS_MAXIMOS,
-                    PRO_USOS_ACTUALES,
-                    PRO_ESTADO
-                FROM AER_PROMOCION
-                ORDER BY PRO_ID_PROMOCION";
+            var query = _sqlQueryProvider.GetQuery("PromocionService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PromocionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PRO_ID_PROMOCION,
-                    PRO_CODIGO_PROMOCION,
-                    PRO_DESCRIPCION,
-                    PRO_TIPO_DESCUENTO,
-                    PRO_VALOR_DESCUENTO,
-                    PRO_FECHA_INICIO,
-                    PRO_FECHA_FIN,
-                    PRO_USOS_MAXIMOS,
-                    PRO_USOS_ACTUALES,
-                    PRO_ESTADO
-                FROM AER_PROMOCION
-                WHERE PRO_ID_PROMOCION = :id";
+            var query = _sqlQueryProvider.GetQuery("PromocionService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PromocionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PROMOCION
-                (
-                    PRO_CODIGO_PROMOCION,
-                    PRO_DESCRIPCION,
-                    PRO_TIPO_DESCUENTO,
-                    PRO_VALOR_DESCUENTO,
-                    PRO_FECHA_INICIO,
-                    PRO_FECHA_FIN,
-                    PRO_USOS_MAXIMOS,
-                    PRO_USOS_ACTUALES,
-                    PRO_ESTADO
-                )
-                VALUES
-                (
-                    :codigoPromocion,
-                    :descripcion,
-                    :tipoDescuento,
-                    :valorDescuento,
-                    :fechaInicio,
-                    :fechaFin,
-                    :usosMaximos,
-                    :usosActuales,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("PromocionService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PromocionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PROMOCION
-                SET
-                    PRO_CODIGO_PROMOCION = :codigoPromocion,
-                    PRO_DESCRIPCION = :descripcion,
-                    PRO_TIPO_DESCUENTO = :tipoDescuento,
-                    PRO_VALOR_DESCUENTO = :valorDescuento,
-                    PRO_FECHA_INICIO = :fechaInicio,
-                    PRO_FECHA_FIN = :fechaFin,
-                    PRO_USOS_MAXIMOS = :usosMaximos,
-                    PRO_USOS_ACTUALES = :usosActuales,
-                    PRO_ESTADO = :estado
-                WHERE PRO_ID_PROMOCION = :id";
+            var query = _sqlQueryProvider.GetQuery("PromocionService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PROMOCION
-                WHERE PRO_ID_PROMOCION = :id";
+            var query = _sqlQueryProvider.GetQuery("PromocionService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -189,3 +127,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

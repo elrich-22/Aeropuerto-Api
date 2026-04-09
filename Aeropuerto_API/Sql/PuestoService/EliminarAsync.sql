@@ -1,0 +1,2 @@
+DELETE FROM AER_PUESTO
+                WHERE PUE_ID_PUESTO = :id

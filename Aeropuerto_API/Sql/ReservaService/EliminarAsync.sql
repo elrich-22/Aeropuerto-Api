@@ -1,0 +1,2 @@
+DELETE FROM AER_RESERVA
+                WHERE RES_ID_RESERVA = :id

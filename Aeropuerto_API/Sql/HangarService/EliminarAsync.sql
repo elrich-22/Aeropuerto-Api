@@ -1,0 +1,2 @@
+DELETE FROM AER_HANGAR
+                WHERE HAN_ID_HANGAR = :id

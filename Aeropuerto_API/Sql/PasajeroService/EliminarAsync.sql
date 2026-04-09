@@ -1,0 +1,2 @@
+DELETE FROM AER_PASAJERO
+                WHERE PAS_ID_PASAJERO = :id

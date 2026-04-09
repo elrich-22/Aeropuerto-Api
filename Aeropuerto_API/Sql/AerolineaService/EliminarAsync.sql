@@ -1,0 +1,2 @@
+DELETE FROM AER_AEROLINEA
+                WHERE ARL_ID = :id

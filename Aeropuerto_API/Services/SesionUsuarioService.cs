@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class SesionUsuarioService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public SesionUsuarioService(DatabaseSettings settings)
+        public SesionUsuarioService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<SesionUsuarioResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<SesionUsuarioResponseDto>();
 
-            const string query = @"
-                SELECT
-                    SES_ID_SESION,
-                    SES_SESION_ID,
-                    SES_ID_PASAJERO,
-                    SES_IP_ADDRESS,
-                    SES_NAVEGADOR,
-                    SES_SISTEMA_OPERATIVO,
-                    SES_DISPOSITIVO,
-                    SES_FECHA_INICIO,
-                    SES_FECHA_FIN,
-                    SES_DURACION_SEGUNDOS
-                FROM AER_SESIONUSUARIO
-                ORDER BY SES_ID_SESION";
+            var query = _sqlQueryProvider.GetQuery("SesionUsuarioService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<SesionUsuarioResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    SES_ID_SESION,
-                    SES_SESION_ID,
-                    SES_ID_PASAJERO,
-                    SES_IP_ADDRESS,
-                    SES_NAVEGADOR,
-                    SES_SISTEMA_OPERATIVO,
-                    SES_DISPOSITIVO,
-                    SES_FECHA_INICIO,
-                    SES_FECHA_FIN,
-                    SES_DURACION_SEGUNDOS
-                FROM AER_SESIONUSUARIO
-                WHERE SES_ID_SESION = :id";
+            var query = _sqlQueryProvider.GetQuery("SesionUsuarioService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(SesionUsuarioCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_SESIONUSUARIO
-                (
-                    SES_SESION_ID,
-                    SES_ID_PASAJERO,
-                    SES_IP_ADDRESS,
-                    SES_NAVEGADOR,
-                    SES_SISTEMA_OPERATIVO,
-                    SES_DISPOSITIVO,
-                    SES_FECHA_INICIO,
-                    SES_FECHA_FIN,
-                    SES_DURACION_SEGUNDOS
-                )
-                VALUES
-                (
-                    :sesionId,
-                    :idPasajero,
-                    :ipAddress,
-                    :navegador,
-                    :sistemaOperativo,
-                    :dispositivo,
-                    :fechaInicio,
-                    :fechaFin,
-                    :duracionSegundos
-                )";
+            var query = _sqlQueryProvider.GetQuery("SesionUsuarioService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, SesionUsuarioUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_SESIONUSUARIO
-                SET
-                    SES_SESION_ID = :sesionId,
-                    SES_ID_PASAJERO = :idPasajero,
-                    SES_IP_ADDRESS = :ipAddress,
-                    SES_NAVEGADOR = :navegador,
-                    SES_SISTEMA_OPERATIVO = :sistemaOperativo,
-                    SES_DISPOSITIVO = :dispositivo,
-                    SES_FECHA_INICIO = :fechaInicio,
-                    SES_FECHA_FIN = :fechaFin,
-                    SES_DURACION_SEGUNDOS = :duracionSegundos
-                WHERE SES_ID_SESION = :id";
+            var query = _sqlQueryProvider.GetQuery("SesionUsuarioService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_SESIONUSUARIO
-                WHERE SES_ID_SESION = :id";
+            var query = _sqlQueryProvider.GetQuery("SesionUsuarioService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -189,3 +127,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

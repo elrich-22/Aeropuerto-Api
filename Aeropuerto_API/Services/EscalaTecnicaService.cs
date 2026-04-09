@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,27 +7,19 @@ namespace AeropuertoAPI.Services
     public class EscalaTecnicaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public EscalaTecnicaService(DatabaseSettings settings)
+        public EscalaTecnicaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<EscalaTecnicaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<EscalaTecnicaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ESC_ID_ESCALA,
-                    ESC_ID_PROGRAMA_VUELO,
-                    ESC_ID_AEROPUERTO,
-                    ESC_NUMERO_ORDEN,
-                    ESC_HORA_LLEGADA_ESTIMADA,
-                    ESC_HORA_SALIDA_ESTIMADA,
-                    ESC_DURACION_ESCALA
-                FROM AER_ESCALATECNICA
-                ORDER BY ESC_ID_ESCALA";
+            var query = _sqlQueryProvider.GetQuery("EscalaTecnicaService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -45,17 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<EscalaTecnicaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ESC_ID_ESCALA,
-                    ESC_ID_PROGRAMA_VUELO,
-                    ESC_ID_AEROPUERTO,
-                    ESC_NUMERO_ORDEN,
-                    ESC_HORA_LLEGADA_ESTIMADA,
-                    ESC_HORA_SALIDA_ESTIMADA,
-                    ESC_DURACION_ESCALA
-                FROM AER_ESCALATECNICA
-                WHERE ESC_ID_ESCALA = :id";
+            var query = _sqlQueryProvider.GetQuery("EscalaTecnicaService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -73,25 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(EscalaTecnicaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ESCALATECNICA
-                (
-                    ESC_ID_PROGRAMA_VUELO,
-                    ESC_ID_AEROPUERTO,
-                    ESC_NUMERO_ORDEN,
-                    ESC_HORA_LLEGADA_ESTIMADA,
-                    ESC_HORA_SALIDA_ESTIMADA,
-                    ESC_DURACION_ESCALA
-                )
-                VALUES
-                (
-                    :idProgramaVuelo,
-                    :idAeropuerto,
-                    :numeroOrden,
-                    :horaLlegadaEstimada,
-                    :horaSalidaEstimada,
-                    :duracionEscala
-                )";
+            var query = _sqlQueryProvider.GetQuery("EscalaTecnicaService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -109,16 +73,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, EscalaTecnicaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ESCALATECNICA
-                SET
-                    ESC_ID_PROGRAMA_VUELO = :idProgramaVuelo,
-                    ESC_ID_AEROPUERTO = :idAeropuerto,
-                    ESC_NUMERO_ORDEN = :numeroOrden,
-                    ESC_HORA_LLEGADA_ESTIMADA = :horaLlegadaEstimada,
-                    ESC_HORA_SALIDA_ESTIMADA = :horaSalidaEstimada,
-                    ESC_DURACION_ESCALA = :duracionEscala
-                WHERE ESC_ID_ESCALA = :id";
+            var query = _sqlQueryProvider.GetQuery("EscalaTecnicaService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -137,9 +92,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ESCALATECNICA
-                WHERE ESC_ID_ESCALA = :id";
+            var query = _sqlQueryProvider.GetQuery("EscalaTecnicaService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

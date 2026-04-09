@@ -1,0 +1,2 @@
+DELETE FROM AER_MODELOAVION
+                WHERE MOD_ID_MODELO = :id

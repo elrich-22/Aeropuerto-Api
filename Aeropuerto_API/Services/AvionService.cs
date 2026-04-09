@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,29 +7,19 @@ namespace AeropuertoAPI.Services
     public class AvionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AvionService(DatabaseSettings settings)
+        public AvionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AvionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<AvionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    AVI_ID,
-                    AVI_MATRICULA,
-                    AVI_ID_MODELO,
-                    AVI_ID_AEROLINEA,
-                    AVI_ANIO_FABRICACION,
-                    AVI_ESTADO,
-                    AVI_ULTIMA_REVISION,
-                    AVI_PROXIMA_REVISION,
-                    AVI_HORAS_VUELO
-                FROM AER_AVION
-                ORDER BY AVI_ID";
+            var query = _sqlQueryProvider.GetQuery("AvionService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -68,19 +58,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AvionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    AVI_ID,
-                    AVI_MATRICULA,
-                    AVI_ID_MODELO,
-                    AVI_ID_AEROLINEA,
-                    AVI_ANIO_FABRICACION,
-                    AVI_ESTADO,
-                    AVI_ULTIMA_REVISION,
-                    AVI_PROXIMA_REVISION,
-                    AVI_HORAS_VUELO
-                FROM AER_AVION
-                WHERE AVI_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AvionService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -121,29 +99,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AvionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_AVION
-                (
-                    AVI_MATRICULA,
-                    AVI_ID_MODELO,
-                    AVI_ID_AEROLINEA,
-                    AVI_ANIO_FABRICACION,
-                    AVI_ESTADO,
-                    AVI_ULTIMA_REVISION,
-                    AVI_PROXIMA_REVISION,
-                    AVI_HORAS_VUELO
-                )
-                VALUES
-                (
-                    :matricula,
-                    :idModelo,
-                    :idAerolinea,
-                    :anioFabricacion,
-                    :estado,
-                    :ultimaRevision,
-                    :proximaRevision,
-                    :horasVuelo
-                )";
+            var query = _sqlQueryProvider.GetQuery("AvionService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -164,18 +120,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AvionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_AVION
-                SET
-                    AVI_MATRICULA = :matricula,
-                    AVI_ID_MODELO = :idModelo,
-                    AVI_ID_AEROLINEA = :idAerolinea,
-                    AVI_ANIO_FABRICACION = :anioFabricacion,
-                    AVI_ESTADO = :estado,
-                    AVI_ULTIMA_REVISION = :ultimaRevision,
-                    AVI_PROXIMA_REVISION = :proximaRevision,
-                    AVI_HORAS_VUELO = :horasVuelo
-                WHERE AVI_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AvionService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -197,9 +142,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_AVION
-                WHERE AVI_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AvionService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

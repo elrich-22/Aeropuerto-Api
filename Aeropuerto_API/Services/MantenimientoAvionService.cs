@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,32 +7,19 @@ namespace AeropuertoAPI.Services
     public class MantenimientoAvionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public MantenimientoAvionService(DatabaseSettings settings)
+        public MantenimientoAvionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<MantenimientoAvionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<MantenimientoAvionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    MAN_ID_MANTENIMIENTO,
-                    MAN_ID_AVION,
-                    MAN_TIPO_MANTENIMIENTO,
-                    MAN_FECHA_INICIO,
-                    MAN_FECHA_FIN_ESTIMADA,
-                    MAN_FECHA_FIN_REAL,
-                    MAN_DESCRIPCION_TRABAJO,
-                    MAN_ID_EMPLEADO_RESPONSABLE,
-                    MAN_COSTO_MANO_OBRA,
-                    MAN_COSTO_REPUESTOS,
-                    MAN_COSTO_TOTAL,
-                    MAN_ESTADO
-                FROM AER_MANTENIMIENTOAVION
-                ORDER BY MAN_ID_MANTENIMIENTO";
+            var query = _sqlQueryProvider.GetQuery("MantenimientoAvionService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -50,22 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<MantenimientoAvionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    MAN_ID_MANTENIMIENTO,
-                    MAN_ID_AVION,
-                    MAN_TIPO_MANTENIMIENTO,
-                    MAN_FECHA_INICIO,
-                    MAN_FECHA_FIN_ESTIMADA,
-                    MAN_FECHA_FIN_REAL,
-                    MAN_DESCRIPCION_TRABAJO,
-                    MAN_ID_EMPLEADO_RESPONSABLE,
-                    MAN_COSTO_MANO_OBRA,
-                    MAN_COSTO_REPUESTOS,
-                    MAN_COSTO_TOTAL,
-                    MAN_ESTADO
-                FROM AER_MANTENIMIENTOAVION
-                WHERE MAN_ID_MANTENIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MantenimientoAvionService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -83,35 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(MantenimientoAvionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_MANTENIMIENTOAVION
-                (
-                    MAN_ID_AVION,
-                    MAN_TIPO_MANTENIMIENTO,
-                    MAN_FECHA_INICIO,
-                    MAN_FECHA_FIN_ESTIMADA,
-                    MAN_FECHA_FIN_REAL,
-                    MAN_DESCRIPCION_TRABAJO,
-                    MAN_ID_EMPLEADO_RESPONSABLE,
-                    MAN_COSTO_MANO_OBRA,
-                    MAN_COSTO_REPUESTOS,
-                    MAN_COSTO_TOTAL,
-                    MAN_ESTADO
-                )
-                VALUES
-                (
-                    :idAvion,
-                    :tipoMantenimiento,
-                    :fechaInicio,
-                    :fechaFinEstimada,
-                    :fechaFinReal,
-                    :descripcionTrabajo,
-                    :idEmpleadoResponsable,
-                    :costoManoObra,
-                    :costoRepuestos,
-                    :costoTotal,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("MantenimientoAvionService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -135,21 +79,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, MantenimientoAvionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_MANTENIMIENTOAVION
-                SET
-                    MAN_ID_AVION = :idAvion,
-                    MAN_TIPO_MANTENIMIENTO = :tipoMantenimiento,
-                    MAN_FECHA_INICIO = :fechaInicio,
-                    MAN_FECHA_FIN_ESTIMADA = :fechaFinEstimada,
-                    MAN_FECHA_FIN_REAL = :fechaFinReal,
-                    MAN_DESCRIPCION_TRABAJO = :descripcionTrabajo,
-                    MAN_ID_EMPLEADO_RESPONSABLE = :idEmpleadoResponsable,
-                    MAN_COSTO_MANO_OBRA = :costoManoObra,
-                    MAN_COSTO_REPUESTOS = :costoRepuestos,
-                    MAN_COSTO_TOTAL = :costoTotal,
-                    MAN_ESTADO = :estado
-                WHERE MAN_ID_MANTENIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MantenimientoAvionService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -174,9 +104,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_MANTENIMIENTOAVION
-                WHERE MAN_ID_MANTENIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MantenimientoAvionService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

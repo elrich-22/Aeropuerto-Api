@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class AsignacionHangarService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AsignacionHangarService(DatabaseSettings settings)
+        public AsignacionHangarService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AsignacionHangarResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<AsignacionHangarResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ASH_ID_ASIGNACION,
-                    ASH_ID_HANGAR,
-                    ASH_ID_AVION,
-                    ASH_FECHA_ENTRADA,
-                    ASH_FECHA_SALIDA_PROGRAMADA,
-                    ASH_FECHA_SALIDA_REAL,
-                    ASH_MOTIVO,
-                    ASH_COSTO_HORA,
-                    ASH_COSTO_TOTAL,
-                    ASH_ESTADO
-                FROM AER_ASIGNACIONHANGAR
-                ORDER BY ASH_ID_ASIGNACION";
+            var query = _sqlQueryProvider.GetQuery("AsignacionHangarService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AsignacionHangarResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ASH_ID_ASIGNACION,
-                    ASH_ID_HANGAR,
-                    ASH_ID_AVION,
-                    ASH_FECHA_ENTRADA,
-                    ASH_FECHA_SALIDA_PROGRAMADA,
-                    ASH_FECHA_SALIDA_REAL,
-                    ASH_MOTIVO,
-                    ASH_COSTO_HORA,
-                    ASH_COSTO_TOTAL,
-                    ASH_ESTADO
-                FROM AER_ASIGNACIONHANGAR
-                WHERE ASH_ID_ASIGNACION = :id";
+            var query = _sqlQueryProvider.GetQuery("AsignacionHangarService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AsignacionHangarCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ASIGNACIONHANGAR
-                (
-                    ASH_ID_HANGAR,
-                    ASH_ID_AVION,
-                    ASH_FECHA_ENTRADA,
-                    ASH_FECHA_SALIDA_PROGRAMADA,
-                    ASH_FECHA_SALIDA_REAL,
-                    ASH_MOTIVO,
-                    ASH_COSTO_HORA,
-                    ASH_COSTO_TOTAL,
-                    ASH_ESTADO
-                )
-                VALUES
-                (
-                    :idHangar,
-                    :idAvion,
-                    :fechaEntrada,
-                    :fechaSalidaProgramada,
-                    :fechaSalidaReal,
-                    :motivo,
-                    :costoHora,
-                    :costoTotal,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("AsignacionHangarService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AsignacionHangarUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ASIGNACIONHANGAR
-                SET
-                    ASH_ID_HANGAR = :idHangar,
-                    ASH_ID_AVION = :idAvion,
-                    ASH_FECHA_ENTRADA = :fechaEntrada,
-                    ASH_FECHA_SALIDA_PROGRAMADA = :fechaSalidaProgramada,
-                    ASH_FECHA_SALIDA_REAL = :fechaSalidaReal,
-                    ASH_MOTIVO = :motivo,
-                    ASH_COSTO_HORA = :costoHora,
-                    ASH_COSTO_TOTAL = :costoTotal,
-                    ASH_ESTADO = :estado
-                WHERE ASH_ID_ASIGNACION = :id";
+            var query = _sqlQueryProvider.GetQuery("AsignacionHangarService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ASIGNACIONHANGAR
-                WHERE ASH_ID_ASIGNACION = :id";
+            var query = _sqlQueryProvider.GetQuery("AsignacionHangarService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

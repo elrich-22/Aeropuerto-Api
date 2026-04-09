@@ -1,0 +1,2 @@
+DELETE FROM AER_CLICKDESTINO
+                WHERE CLI_ID_CLICK = :id

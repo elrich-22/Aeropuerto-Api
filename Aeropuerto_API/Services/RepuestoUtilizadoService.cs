@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,24 +7,19 @@ namespace AeropuertoAPI.Services
     public class RepuestoUtilizadoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public RepuestoUtilizadoService(DatabaseSettings settings)
+        public RepuestoUtilizadoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<RepuestoUtilizadoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<RepuestoUtilizadoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    RUT_ID_REPUESTO_UTILIZADO,
-                    RUT_ID_MANTENIMIENTO,
-                    RUT_ID_REPUESTO,
-                    RUT_CANTIDAD
-                FROM AER_REPUESTOUTILIZADO
-                ORDER BY RUT_ID_REPUESTO_UTILIZADO";
+            var query = _sqlQueryProvider.GetQuery("RepuestoUtilizadoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -42,14 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<RepuestoUtilizadoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    RUT_ID_REPUESTO_UTILIZADO,
-                    RUT_ID_MANTENIMIENTO,
-                    RUT_ID_REPUESTO,
-                    RUT_CANTIDAD
-                FROM AER_REPUESTOUTILIZADO
-                WHERE RUT_ID_REPUESTO_UTILIZADO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoUtilizadoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -67,19 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(RepuestoUtilizadoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_REPUESTOUTILIZADO
-                (
-                    RUT_ID_MANTENIMIENTO,
-                    RUT_ID_REPUESTO,
-                    RUT_CANTIDAD
-                )
-                VALUES
-                (
-                    :idMantenimiento,
-                    :idRepuesto,
-                    :cantidad
-                )";
+            var query = _sqlQueryProvider.GetQuery("RepuestoUtilizadoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -94,13 +70,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, RepuestoUtilizadoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_REPUESTOUTILIZADO
-                SET
-                    RUT_ID_MANTENIMIENTO = :idMantenimiento,
-                    RUT_ID_REPUESTO = :idRepuesto,
-                    RUT_CANTIDAD = :cantidad
-                WHERE RUT_ID_REPUESTO_UTILIZADO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoUtilizadoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -116,9 +86,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_REPUESTOUTILIZADO
-                WHERE RUT_ID_REPUESTO_UTILIZADO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoUtilizadoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

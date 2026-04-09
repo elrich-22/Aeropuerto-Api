@@ -7,28 +7,19 @@ namespace AeropuertoAPI.Services
     public class LicenciaEmpleadoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public LicenciaEmpleadoService(DatabaseSettings settings)
+        public LicenciaEmpleadoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<LicenciaEmpleadoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<LicenciaEmpleadoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    LIC_ID_LICENCIA,
-                    LIC_ID_EMPLEADO,
-                    LIC_TIPO_LICENCIA,
-                    LIC_NUMERO_LICENCIA,
-                    LIC_FECHA_EMISION,
-                    LIC_FECHA_VENCIMIENTO,
-                    LIC_AUTORIDAD_EMISORA,
-                    LIC_ESTADO
-                FROM AER_LICENCIAEMPLEADO
-                ORDER BY LIC_ID_LICENCIA";
+            var query = _sqlQueryProvider.GetQuery("LicenciaEmpleadoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -46,18 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<LicenciaEmpleadoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    LIC_ID_LICENCIA,
-                    LIC_ID_EMPLEADO,
-                    LIC_TIPO_LICENCIA,
-                    LIC_NUMERO_LICENCIA,
-                    LIC_FECHA_EMISION,
-                    LIC_FECHA_VENCIMIENTO,
-                    LIC_AUTORIDAD_EMISORA,
-                    LIC_ESTADO
-                FROM AER_LICENCIAEMPLEADO
-                WHERE LIC_ID_LICENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("LicenciaEmpleadoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -75,27 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(LicenciaEmpleadoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_LICENCIAEMPLEADO
-                (
-                    LIC_ID_EMPLEADO,
-                    LIC_TIPO_LICENCIA,
-                    LIC_NUMERO_LICENCIA,
-                    LIC_FECHA_EMISION,
-                    LIC_FECHA_VENCIMIENTO,
-                    LIC_AUTORIDAD_EMISORA,
-                    LIC_ESTADO
-                )
-                VALUES
-                (
-                    :idEmpleado,
-                    :tipoLicencia,
-                    :numeroLicencia,
-                    :fechaEmision,
-                    :fechaVencimiento,
-                    :autoridadEmisora,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("LicenciaEmpleadoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -114,17 +74,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, LicenciaEmpleadoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_LICENCIAEMPLEADO
-                SET
-                    LIC_ID_EMPLEADO = :idEmpleado,
-                    LIC_TIPO_LICENCIA = :tipoLicencia,
-                    LIC_NUMERO_LICENCIA = :numeroLicencia,
-                    LIC_FECHA_EMISION = :fechaEmision,
-                    LIC_FECHA_VENCIMIENTO = :fechaVencimiento,
-                    LIC_AUTORIDAD_EMISORA = :autoridadEmisora,
-                    LIC_ESTADO = :estado
-                WHERE LIC_ID_LICENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("LicenciaEmpleadoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -144,9 +94,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_LICENCIAEMPLEADO
-                WHERE LIC_ID_LICENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("LicenciaEmpleadoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -173,3 +121,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

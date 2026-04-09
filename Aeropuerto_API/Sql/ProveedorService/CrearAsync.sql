@@ -1,0 +1,24 @@
+INSERT INTO AER_PROVEEDOR
+                (
+                    PRV_NOMBRE_EMPRESA,
+                    PRV_NIT,
+                    PRV_DIRECCION,
+                    PRV_TELEFONO,
+                    PRV_EMAIL,
+                    PRV_CONTACTO_PRINCIPAL,
+                    PRV_PAIS,
+                    PRV_ESTADO,
+                    PRV_CALIFICACION
+                )
+                VALUES
+                (
+                    :nombreEmpresa,
+                    :nit,
+                    :direccion,
+                    :telefono,
+                    :email,
+                    :contactoPrincipal,
+                    :pais,
+                    :estado,
+                    :calificacion
+                )

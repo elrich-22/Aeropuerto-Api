@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class AerolineaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AerolineaService(DatabaseSettings settings)
+        public AerolineaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AerolineaResponseDto>> ObtenerTodasAsync()
         {
             var lista = new List<AerolineaResponseDto>();
 
-            const string query = @"
-                SELECT 
-                    ARL_ID,
-                    ARL_CODIGO_AEROLINEA,
-                    ARL_NOMBRE,
-                    ARL_PAIS_ORIGEN,
-                    ARL_CODIGO_IATA,
-                    ARL_CODIGO_ICAO,
-                    ARL_ESTADO,
-                    ARL_TELEFONO,
-                    ARL_EMAIL,
-                    ARL_SITIO_WEB,
-                    ARL_FECHA_REGISTRO
-                FROM AER_AEROLINEA
-                ORDER BY ARL_ID";
+            var query = _sqlQueryProvider.GetQuery("AerolineaService/ObtenerTodasAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -64,21 +52,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AerolineaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT 
-                    ARL_ID,
-                    ARL_CODIGO_AEROLINEA,
-                    ARL_NOMBRE,
-                    ARL_PAIS_ORIGEN,
-                    ARL_CODIGO_IATA,
-                    ARL_CODIGO_ICAO,
-                    ARL_ESTADO,
-                    ARL_TELEFONO,
-                    ARL_EMAIL,
-                    ARL_SITIO_WEB,
-                    ARL_FECHA_REGISTRO
-                FROM AER_AEROLINEA
-                WHERE ARL_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AerolineaService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -113,31 +87,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AerolineaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_AEROLINEA
-                (
-                    ARL_CODIGO_AEROLINEA,
-                    ARL_NOMBRE,
-                    ARL_PAIS_ORIGEN,
-                    ARL_CODIGO_IATA,
-                    ARL_CODIGO_ICAO,
-                    ARL_ESTADO,
-                    ARL_TELEFONO,
-                    ARL_EMAIL,
-                    ARL_SITIO_WEB
-                )
-                VALUES
-                (
-                    :codigo,
-                    :nombre,
-                    :paisOrigen,
-                    :codigoIata,
-                    :codigoIcao,
-                    :estado,
-                    :telefono,
-                    :email,
-                    :sitioWeb
-                )";
+            var query = _sqlQueryProvider.GetQuery("AerolineaService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -159,19 +109,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AerolineaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_AEROLINEA
-                SET
-                    ARL_CODIGO_AEROLINEA = :codigo,
-                    ARL_NOMBRE = :nombre,
-                    ARL_PAIS_ORIGEN = :paisOrigen,
-                    ARL_CODIGO_IATA = :codigoIata,
-                    ARL_CODIGO_ICAO = :codigoIcao,
-                    ARL_ESTADO = :estado,
-                    ARL_TELEFONO = :telefono,
-                    ARL_EMAIL = :email,
-                    ARL_SITIO_WEB = :sitioWeb
-                WHERE ARL_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AerolineaService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -194,9 +132,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_AEROLINEA
-                WHERE ARL_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AerolineaService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

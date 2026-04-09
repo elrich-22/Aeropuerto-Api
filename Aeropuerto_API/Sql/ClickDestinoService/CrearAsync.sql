@@ -1,0 +1,20 @@
+INSERT INTO AER_CLICKDESTINO
+                (
+                    CLI_ID_SESION,
+                    CLI_ID_AEROPUERTO_DESTINO,
+                    CLI_FECHA_CLICK,
+                    CLI_ORIGEN_BUSQUEDA,
+                    CLI_FECHA_VIAJE_BUSCADA,
+                    CLI_NUMERO_PASAJEROS,
+                    CLI_CLASE_BUSCADA
+                )
+                VALUES
+                (
+                    :idSesion,
+                    :idAeropuertoDestino,
+                    :fechaClick,
+                    :origenBusqueda,
+                    :fechaViajeBuscada,
+                    :numeroPasajeros,
+                    :claseBuscada
+                )

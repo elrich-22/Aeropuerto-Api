@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,33 +7,19 @@ namespace AeropuertoAPI.Services
     public class VentaBoletoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public VentaBoletoService(DatabaseSettings settings)
+        public VentaBoletoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<VentaBoletoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<VentaBoletoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    VEN_ID_VENTA,
-                    VEN_NUMERO_VENTA,
-                    VEN_ID_PUNTO_VENTA,
-                    VEN_ID_EMPLEADO_VENDEDOR,
-                    VEN_ID_PASAJERO,
-                    VEN_FECHA_VENTA,
-                    VEN_MONTO_SUBTOTAL,
-                    VEN_IMPUESTOS,
-                    VEN_DESCUENTOS,
-                    VEN_MONTO_TOTAL,
-                    VEN_ID_METODO_PAGO,
-                    VEN_CANAL_VENTA,
-                    VEN_ESTADO
-                FROM AER_VENTABOLETO
-                ORDER BY VEN_ID_VENTA";
+            var query = _sqlQueryProvider.GetQuery("VentaBoletoService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -66,23 +52,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<VentaBoletoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    VEN_ID_VENTA,
-                    VEN_NUMERO_VENTA,
-                    VEN_ID_PUNTO_VENTA,
-                    VEN_ID_EMPLEADO_VENDEDOR,
-                    VEN_ID_PASAJERO,
-                    VEN_FECHA_VENTA,
-                    VEN_MONTO_SUBTOTAL,
-                    VEN_IMPUESTOS,
-                    VEN_DESCUENTOS,
-                    VEN_MONTO_TOTAL,
-                    VEN_ID_METODO_PAGO,
-                    VEN_CANAL_VENTA,
-                    VEN_ESTADO
-                FROM AER_VENTABOLETO
-                WHERE VEN_ID_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("VentaBoletoService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -117,37 +87,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(VentaBoletoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_VENTABOLETO
-                (
-                    VEN_NUMERO_VENTA,
-                    VEN_ID_PUNTO_VENTA,
-                    VEN_ID_EMPLEADO_VENDEDOR,
-                    VEN_ID_PASAJERO,
-                    VEN_FECHA_VENTA,
-                    VEN_MONTO_SUBTOTAL,
-                    VEN_IMPUESTOS,
-                    VEN_DESCUENTOS,
-                    VEN_MONTO_TOTAL,
-                    VEN_ID_METODO_PAGO,
-                    VEN_CANAL_VENTA,
-                    VEN_ESTADO
-                )
-                VALUES
-                (
-                    :numeroVenta,
-                    :idPuntoVenta,
-                    :idEmpleadoVendedor,
-                    :idPasajero,
-                    :fechaVenta,
-                    :montoSubtotal,
-                    :impuestos,
-                    :descuentos,
-                    :montoTotal,
-                    :idMetodoPago,
-                    :canalVenta,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("VentaBoletoService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -172,22 +112,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, VentaBoletoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_VENTABOLETO
-                SET
-                    VEN_NUMERO_VENTA = :numeroVenta,
-                    VEN_ID_PUNTO_VENTA = :idPuntoVenta,
-                    VEN_ID_EMPLEADO_VENDEDOR = :idEmpleadoVendedor,
-                    VEN_ID_PASAJERO = :idPasajero,
-                    VEN_FECHA_VENTA = :fechaVenta,
-                    VEN_MONTO_SUBTOTAL = :montoSubtotal,
-                    VEN_IMPUESTOS = :impuestos,
-                    VEN_DESCUENTOS = :descuentos,
-                    VEN_MONTO_TOTAL = :montoTotal,
-                    VEN_ID_METODO_PAGO = :idMetodoPago,
-                    VEN_CANAL_VENTA = :canalVenta,
-                    VEN_ESTADO = :estado
-                WHERE VEN_ID_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("VentaBoletoService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -213,9 +138,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_VENTABOLETO
-                WHERE VEN_ID_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("VentaBoletoService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,28 +7,19 @@ namespace AeropuertoAPI.Services
     public class MovimientoRepuestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public MovimientoRepuestoService(DatabaseSettings settings)
+        public MovimientoRepuestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<MovimientoRepuestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<MovimientoRepuestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    MOV_ID_MOVIMIENTO,
-                    MOV_ID_REPUESTO,
-                    MOV_TIPO_MOVIMIENTO,
-                    MOV_CANTIDAD,
-                    MOV_FECHA_MOVIMIENTO,
-                    MOV_ID_EMPLEADO,
-                    MOV_MOTIVO,
-                    MOV_REFERENCIA
-                FROM AER_MOVIMIENTOREPUESTO
-                ORDER BY MOV_ID_MOVIMIENTO";
+            var query = _sqlQueryProvider.GetQuery("MovimientoRepuestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -46,18 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<MovimientoRepuestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    MOV_ID_MOVIMIENTO,
-                    MOV_ID_REPUESTO,
-                    MOV_TIPO_MOVIMIENTO,
-                    MOV_CANTIDAD,
-                    MOV_FECHA_MOVIMIENTO,
-                    MOV_ID_EMPLEADO,
-                    MOV_MOTIVO,
-                    MOV_REFERENCIA
-                FROM AER_MOVIMIENTOREPUESTO
-                WHERE MOV_ID_MOVIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MovimientoRepuestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -75,27 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(MovimientoRepuestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_MOVIMIENTOREPUESTO
-                (
-                    MOV_ID_REPUESTO,
-                    MOV_TIPO_MOVIMIENTO,
-                    MOV_CANTIDAD,
-                    MOV_FECHA_MOVIMIENTO,
-                    MOV_ID_EMPLEADO,
-                    MOV_MOTIVO,
-                    MOV_REFERENCIA
-                )
-                VALUES
-                (
-                    :idRepuesto,
-                    :tipoMovimiento,
-                    :cantidad,
-                    :fechaMovimiento,
-                    :idEmpleado,
-                    :motivo,
-                    :referencia
-                )";
+            var query = _sqlQueryProvider.GetQuery("MovimientoRepuestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -114,17 +74,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, MovimientoRepuestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_MOVIMIENTOREPUESTO
-                SET
-                    MOV_ID_REPUESTO = :idRepuesto,
-                    MOV_TIPO_MOVIMIENTO = :tipoMovimiento,
-                    MOV_CANTIDAD = :cantidad,
-                    MOV_FECHA_MOVIMIENTO = :fechaMovimiento,
-                    MOV_ID_EMPLEADO = :idEmpleado,
-                    MOV_MOTIVO = :motivo,
-                    MOV_REFERENCIA = :referencia
-                WHERE MOV_ID_MOVIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MovimientoRepuestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -144,9 +94,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_MOVIMIENTOREPUESTO
-                WHERE MOV_ID_MOVIMIENTO = :id";
+            var query = _sqlQueryProvider.GetQuery("MovimientoRepuestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

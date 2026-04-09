@@ -1,0 +1,2 @@
+DELETE FROM AER_REPUESTO
+                WHERE REP_ID_REPUESTO = :id

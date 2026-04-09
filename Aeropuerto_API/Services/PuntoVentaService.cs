@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,26 +7,19 @@ namespace AeropuertoAPI.Services
     public class PuntoVentaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PuntoVentaService(DatabaseSettings settings)
+        public PuntoVentaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PuntoVentaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PuntoVentaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PUV_ID_PUNTO_VENTA,
-                    PUV_CODIGO_PUNTO,
-                    PUV_NOMBRE,
-                    PUV_ID_AEROPUERTO,
-                    PUV_UBICACION,
-                    PUV_ESTADO
-                FROM AER_PUNTOVENTA
-                ORDER BY PUV_ID_PUNTO_VENTA";
+            var query = _sqlQueryProvider.GetQuery("PuntoVentaService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -52,16 +45,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PuntoVentaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PUV_ID_PUNTO_VENTA,
-                    PUV_CODIGO_PUNTO,
-                    PUV_NOMBRE,
-                    PUV_ID_AEROPUERTO,
-                    PUV_UBICACION,
-                    PUV_ESTADO
-                FROM AER_PUNTOVENTA
-                WHERE PUV_ID_PUNTO_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("PuntoVentaService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -89,23 +73,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PuntoVentaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PUNTOVENTA
-                (
-                    PUV_CODIGO_PUNTO,
-                    PUV_NOMBRE,
-                    PUV_ID_AEROPUERTO,
-                    PUV_UBICACION,
-                    PUV_ESTADO
-                )
-                VALUES
-                (
-                    :codigoPunto,
-                    :nombre,
-                    :idAeropuerto,
-                    :ubicacion,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("PuntoVentaService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -123,15 +91,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PuntoVentaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PUNTOVENTA
-                SET
-                    PUV_CODIGO_PUNTO = :codigoPunto,
-                    PUV_NOMBRE = :nombre,
-                    PUV_ID_AEROPUERTO = :idAeropuerto,
-                    PUV_UBICACION = :ubicacion,
-                    PUV_ESTADO = :estado
-                WHERE PUV_ID_PUNTO_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("PuntoVentaService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -150,9 +110,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PUNTOVENTA
-                WHERE PUV_ID_PUNTO_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("PuntoVentaService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

@@ -1,0 +1,22 @@
+INSERT INTO AER_HANGAR
+                (
+                    HAN_CODIGO_HANGAR,
+                    HAN_NOMBRE,
+                    HAN_ID_AEROPUERTO,
+                    HAN_CAPACIDAD_AVIONES,
+                    HAN_AREA_M2,
+                    HAN_ALTURA_MAXIMA,
+                    HAN_TIPO,
+                    HAN_ESTADO
+                )
+                VALUES
+                (
+                    :codigoHangar,
+                    :nombre,
+                    :idAeropuerto,
+                    :capacidadAviones,
+                    :areaM2,
+                    :alturaMaxima,
+                    :tipo,
+                    :estado
+                )

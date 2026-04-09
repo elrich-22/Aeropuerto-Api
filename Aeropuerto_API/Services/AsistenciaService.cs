@@ -7,28 +7,19 @@ namespace AeropuertoAPI.Services
     public class AsistenciaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AsistenciaService(DatabaseSettings settings)
+        public AsistenciaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AsistenciaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<AsistenciaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ASI_ID_ASISTENCIA,
-                    ASI_ID_EMPLEADO,
-                    ASI_FECHA,
-                    ASI_HORA_ENTRADA,
-                    ASI_HORA_SALIDA,
-                    ASI_HORAS_TRABAJADAS,
-                    ASI_TIPO,
-                    ASI_ESTADO
-                FROM AER_ASISTENCIA
-                ORDER BY ASI_ID_ASISTENCIA";
+            var query = _sqlQueryProvider.GetQuery("AsistenciaService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -46,18 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AsistenciaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ASI_ID_ASISTENCIA,
-                    ASI_ID_EMPLEADO,
-                    ASI_FECHA,
-                    ASI_HORA_ENTRADA,
-                    ASI_HORA_SALIDA,
-                    ASI_HORAS_TRABAJADAS,
-                    ASI_TIPO,
-                    ASI_ESTADO
-                FROM AER_ASISTENCIA
-                WHERE ASI_ID_ASISTENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AsistenciaService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -75,27 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AsistenciaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ASISTENCIA
-                (
-                    ASI_ID_EMPLEADO,
-                    ASI_FECHA,
-                    ASI_HORA_ENTRADA,
-                    ASI_HORA_SALIDA,
-                    ASI_HORAS_TRABAJADAS,
-                    ASI_TIPO,
-                    ASI_ESTADO
-                )
-                VALUES
-                (
-                    :idEmpleado,
-                    :fecha,
-                    :horaEntrada,
-                    :horaSalida,
-                    :horasTrabajadas,
-                    :tipo,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("AsistenciaService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -114,17 +74,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AsistenciaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ASISTENCIA
-                SET
-                    ASI_ID_EMPLEADO = :idEmpleado,
-                    ASI_FECHA = :fecha,
-                    ASI_HORA_ENTRADA = :horaEntrada,
-                    ASI_HORA_SALIDA = :horaSalida,
-                    ASI_HORAS_TRABAJADAS = :horasTrabajadas,
-                    ASI_TIPO = :tipo,
-                    ASI_ESTADO = :estado
-                WHERE ASI_ID_ASISTENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AsistenciaService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -144,9 +94,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ASISTENCIA
-                WHERE ASI_ID_ASISTENCIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AsistenciaService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -173,3 +121,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

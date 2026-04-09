@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class PasajeroService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PasajeroService(DatabaseSettings settings)
+        public PasajeroService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PasajeroResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PasajeroResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PAS_ID_PASAJERO,
-                    PAS_NUMERO_DOCUMENTO,
-                    PAS_TIPO_DOCUMENTO,
-                    PAS_NOMBRES,
-                    PAS_APELLIDOS,
-                    PAS_FECHA_NACIMIENTO,
-                    PAS_NACIONALIDAD,
-                    PAS_SEXO,
-                    PAS_TELEFONO,
-                    PAS_EMAIL,
-                    PAS_FECHA_REGISTRO
-                FROM AER_PASAJERO
-                ORDER BY PAS_ID_PASAJERO";
+            var query = _sqlQueryProvider.GetQuery("PasajeroService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -64,21 +52,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PasajeroResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PAS_ID_PASAJERO,
-                    PAS_NUMERO_DOCUMENTO,
-                    PAS_TIPO_DOCUMENTO,
-                    PAS_NOMBRES,
-                    PAS_APELLIDOS,
-                    PAS_FECHA_NACIMIENTO,
-                    PAS_NACIONALIDAD,
-                    PAS_SEXO,
-                    PAS_TELEFONO,
-                    PAS_EMAIL,
-                    PAS_FECHA_REGISTRO
-                FROM AER_PASAJERO
-                WHERE PAS_ID_PASAJERO = :id";
+            var query = _sqlQueryProvider.GetQuery("PasajeroService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -113,31 +87,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PasajeroCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PASAJERO
-                (
-                    PAS_NUMERO_DOCUMENTO,
-                    PAS_TIPO_DOCUMENTO,
-                    PAS_NOMBRES,
-                    PAS_APELLIDOS,
-                    PAS_FECHA_NACIMIENTO,
-                    PAS_NACIONALIDAD,
-                    PAS_SEXO,
-                    PAS_TELEFONO,
-                    PAS_EMAIL
-                )
-                VALUES
-                (
-                    :numeroDocumento,
-                    :tipoDocumento,
-                    :nombres,
-                    :apellidos,
-                    :fechaNacimiento,
-                    :nacionalidad,
-                    :sexo,
-                    :telefono,
-                    :email
-                )";
+            var query = _sqlQueryProvider.GetQuery("PasajeroService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -159,19 +109,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PasajeroUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PASAJERO
-                SET
-                    PAS_NUMERO_DOCUMENTO = :numeroDocumento,
-                    PAS_TIPO_DOCUMENTO = :tipoDocumento,
-                    PAS_NOMBRES = :nombres,
-                    PAS_APELLIDOS = :apellidos,
-                    PAS_FECHA_NACIMIENTO = :fechaNacimiento,
-                    PAS_NACIONALIDAD = :nacionalidad,
-                    PAS_SEXO = :sexo,
-                    PAS_TELEFONO = :telefono,
-                    PAS_EMAIL = :email
-                WHERE PAS_ID_PASAJERO = :id";
+            var query = _sqlQueryProvider.GetQuery("PasajeroService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -194,9 +132,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PASAJERO
-                WHERE PAS_ID_PASAJERO = :id";
+            var query = _sqlQueryProvider.GetQuery("PasajeroService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

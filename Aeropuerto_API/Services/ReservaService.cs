@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class ReservaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ReservaService(DatabaseSettings settings)
+        public ReservaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ReservaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ReservaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    RES_ID_RESERVA,
-                    RES_ID_VUELO,
-                    RES_ID_PASAJERO,
-                    RES_NUMERO_ASIENTO,
-                    RES_CLASE,
-                    RES_FECHA_RESERVA,
-                    RES_ESTADO,
-                    RES_EQUIPAJE_FACTURADO,
-                    RES_PESO_EQUIPAJE,
-                    RES_TARIFA_PAGADA,
-                    RES_CODIGO_RESERVA
-                FROM AER_RESERVA
-                ORDER BY RES_ID_RESERVA";
+            var query = _sqlQueryProvider.GetQuery("ReservaService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -62,21 +50,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ReservaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    RES_ID_RESERVA,
-                    RES_ID_VUELO,
-                    RES_ID_PASAJERO,
-                    RES_NUMERO_ASIENTO,
-                    RES_CLASE,
-                    RES_FECHA_RESERVA,
-                    RES_ESTADO,
-                    RES_EQUIPAJE_FACTURADO,
-                    RES_PESO_EQUIPAJE,
-                    RES_TARIFA_PAGADA,
-                    RES_CODIGO_RESERVA
-                FROM AER_RESERVA
-                WHERE RES_ID_RESERVA = :id";
+            var query = _sqlQueryProvider.GetQuery("ReservaService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -109,33 +83,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ReservaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_RESERVA
-                (
-                    RES_ID_VUELO,
-                    RES_ID_PASAJERO,
-                    RES_NUMERO_ASIENTO,
-                    RES_CLASE,
-                    RES_FECHA_RESERVA,
-                    RES_ESTADO,
-                    RES_EQUIPAJE_FACTURADO,
-                    RES_PESO_EQUIPAJE,
-                    RES_TARIFA_PAGADA,
-                    RES_CODIGO_RESERVA
-                )
-                VALUES
-                (
-                    :idVuelo,
-                    :idPasajero,
-                    :numeroAsiento,
-                    :clase,
-                    :fechaReserva,
-                    :estado,
-                    :equipajeFacturado,
-                    :pesoEquipaje,
-                    :tarifaPagada,
-                    :codigoReserva
-                )";
+            var query = _sqlQueryProvider.GetQuery("ReservaService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -158,20 +106,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ReservaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_RESERVA
-                SET
-                    RES_ID_VUELO = :idVuelo,
-                    RES_ID_PASAJERO = :idPasajero,
-                    RES_NUMERO_ASIENTO = :numeroAsiento,
-                    RES_CLASE = :clase,
-                    RES_FECHA_RESERVA = :fechaReserva,
-                    RES_ESTADO = :estado,
-                    RES_EQUIPAJE_FACTURADO = :equipajeFacturado,
-                    RES_PESO_EQUIPAJE = :pesoEquipaje,
-                    RES_TARIFA_PAGADA = :tarifaPagada,
-                    RES_CODIGO_RESERVA = :codigoReserva
-                WHERE RES_ID_RESERVA = :id";
+            var query = _sqlQueryProvider.GetQuery("ReservaService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -195,9 +130,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_RESERVA
-                WHERE RES_ID_RESERVA = :id";
+            var query = _sqlQueryProvider.GetQuery("ReservaService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

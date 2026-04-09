@@ -1,0 +1,24 @@
+INSERT INTO AER_SESIONUSUARIO
+                (
+                    SES_SESION_ID,
+                    SES_ID_PASAJERO,
+                    SES_IP_ADDRESS,
+                    SES_NAVEGADOR,
+                    SES_SISTEMA_OPERATIVO,
+                    SES_DISPOSITIVO,
+                    SES_FECHA_INICIO,
+                    SES_FECHA_FIN,
+                    SES_DURACION_SEGUNDOS
+                )
+                VALUES
+                (
+                    :sesionId,
+                    :idPasajero,
+                    :ipAddress,
+                    :navegador,
+                    :sistemaOperativo,
+                    :dispositivo,
+                    :fechaInicio,
+                    :fechaFin,
+                    :duracionSegundos
+                )

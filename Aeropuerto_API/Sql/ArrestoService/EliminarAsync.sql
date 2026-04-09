@@ -1,0 +1,2 @@
+DELETE FROM AER_ARRESTO
+                WHERE ARR_ID_ARRESTO = :id

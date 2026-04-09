@@ -1,0 +1,14 @@
+SELECT
+                    OBJ_ID_OBJETO,
+                    OBJ_ID_VUELO,
+                    OBJ_ID_AEROPUERTO,
+                    OBJ_DESCRIPCION,
+                    OBJ_FECHA_REPORTE,
+                    OBJ_UBICACION_ENCONTRADO,
+                    OBJ_ESTADO,
+                    OBJ_NOMBRE_REPORTANTE,
+                    OBJ_CONTACTO_REPORTANTE,
+                    OBJ_FECHA_ENTREGA,
+                    OBJ_NOMBRE_RECLAMANTE
+                FROM AER_OBJETOPERDIDO
+                ORDER BY OBJ_ID_OBJETO

@@ -1,0 +1,13 @@
+SELECT
+                    PRO_ID_PROMOCION,
+                    PRO_CODIGO_PROMOCION,
+                    PRO_DESCRIPCION,
+                    PRO_TIPO_DESCUENTO,
+                    PRO_VALOR_DESCUENTO,
+                    PRO_FECHA_INICIO,
+                    PRO_FECHA_FIN,
+                    PRO_USOS_MAXIMOS,
+                    PRO_USOS_ACTUALES,
+                    PRO_ESTADO
+                FROM AER_PROMOCION
+                WHERE PRO_ID_PROMOCION = :id

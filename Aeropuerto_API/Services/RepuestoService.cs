@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,33 +7,19 @@ namespace AeropuertoAPI.Services
     public class RepuestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public RepuestoService(DatabaseSettings settings)
+        public RepuestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<RepuestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<RepuestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    REP_ID_REPUESTO,
-                    REP_CODIGO_REPUESTO,
-                    REP_NOMBRE,
-                    REP_DESCRIPCION,
-                    REP_ID_CATEGORIA,
-                    REP_ID_MODELO_AVION,
-                    REP_NUMERO_PARTE_FABRICANTE,
-                    REP_STOCK_MINIMO,
-                    REP_STOCK_ACTUAL,
-                    REP_STOCK_MAXIMO,
-                    REP_PRECIO_UNITARIO,
-                    REP_UBICACION_BODEGA,
-                    REP_ESTADO
-                FROM AER_REPUESTO
-                ORDER BY REP_ID_REPUESTO";
+            var query = _sqlQueryProvider.GetQuery("RepuestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -51,23 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<RepuestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    REP_ID_REPUESTO,
-                    REP_CODIGO_REPUESTO,
-                    REP_NOMBRE,
-                    REP_DESCRIPCION,
-                    REP_ID_CATEGORIA,
-                    REP_ID_MODELO_AVION,
-                    REP_NUMERO_PARTE_FABRICANTE,
-                    REP_STOCK_MINIMO,
-                    REP_STOCK_ACTUAL,
-                    REP_STOCK_MAXIMO,
-                    REP_PRECIO_UNITARIO,
-                    REP_UBICACION_BODEGA,
-                    REP_ESTADO
-                FROM AER_REPUESTO
-                WHERE REP_ID_REPUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -85,37 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(RepuestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_REPUESTO
-                (
-                    REP_CODIGO_REPUESTO,
-                    REP_NOMBRE,
-                    REP_DESCRIPCION,
-                    REP_ID_CATEGORIA,
-                    REP_ID_MODELO_AVION,
-                    REP_NUMERO_PARTE_FABRICANTE,
-                    REP_STOCK_MINIMO,
-                    REP_STOCK_ACTUAL,
-                    REP_STOCK_MAXIMO,
-                    REP_PRECIO_UNITARIO,
-                    REP_UBICACION_BODEGA,
-                    REP_ESTADO
-                )
-                VALUES
-                (
-                    :codigoRepuesto,
-                    :nombre,
-                    :descripcion,
-                    :idCategoria,
-                    :idModeloAvion,
-                    :numeroParteFabricante,
-                    :stockMinimo,
-                    :stockActual,
-                    :stockMaximo,
-                    :precioUnitario,
-                    :ubicacionBodega,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("RepuestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -139,22 +79,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, RepuestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_REPUESTO
-                SET
-                    REP_CODIGO_REPUESTO = :codigoRepuesto,
-                    REP_NOMBRE = :nombre,
-                    REP_DESCRIPCION = :descripcion,
-                    REP_ID_CATEGORIA = :idCategoria,
-                    REP_ID_MODELO_AVION = :idModeloAvion,
-                    REP_NUMERO_PARTE_FABRICANTE = :numeroParteFabricante,
-                    REP_STOCK_MINIMO = :stockMinimo,
-                    REP_STOCK_ACTUAL = :stockActual,
-                    REP_STOCK_MAXIMO = :stockMaximo,
-                    REP_PRECIO_UNITARIO = :precioUnitario,
-                    REP_UBICACION_BODEGA = :ubicacionBodega,
-                    REP_ESTADO = :estado
-                WHERE REP_ID_REPUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -179,9 +104,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_REPUESTO
-                WHERE REP_ID_REPUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("RepuestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

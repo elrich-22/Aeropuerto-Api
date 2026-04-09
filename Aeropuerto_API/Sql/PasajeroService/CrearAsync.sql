@@ -1,0 +1,24 @@
+INSERT INTO AER_PASAJERO
+                (
+                    PAS_NUMERO_DOCUMENTO,
+                    PAS_TIPO_DOCUMENTO,
+                    PAS_NOMBRES,
+                    PAS_APELLIDOS,
+                    PAS_FECHA_NACIMIENTO,
+                    PAS_NACIONALIDAD,
+                    PAS_SEXO,
+                    PAS_TELEFONO,
+                    PAS_EMAIL
+                )
+                VALUES
+                (
+                    :numeroDocumento,
+                    :tipoDocumento,
+                    :nombres,
+                    :apellidos,
+                    :fechaNacimiento,
+                    :nacionalidad,
+                    :sexo,
+                    :telefono,
+                    :email
+                )

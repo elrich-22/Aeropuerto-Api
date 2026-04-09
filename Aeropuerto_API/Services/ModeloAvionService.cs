@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,29 +7,19 @@ namespace AeropuertoAPI.Services
     public class ModeloAvionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ModeloAvionService(DatabaseSettings settings)
+        public ModeloAvionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ModeloAvionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ModeloAvionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    MOD_ID_MODELO,
-                    MOD_NOMBRE_MODELO,
-                    MOD_FABRICANTE,
-                    MOD_CAPACIDAD_PASAJEROS,
-                    MOD_CAPACIDAD_CARGA,
-                    MOD_ALCANCE_KM,
-                    MOD_VELOCIDAD_CRUCERO,
-                    MOD_ANIO_INTRODUCCION,
-                    MOD_TIPO_MOTOR
-                FROM AER_MODELOAVION
-                ORDER BY MOD_ID_MODELO";
+            var query = _sqlQueryProvider.GetQuery("ModeloAvionService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -58,19 +48,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ModeloAvionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    MOD_ID_MODELO,
-                    MOD_NOMBRE_MODELO,
-                    MOD_FABRICANTE,
-                    MOD_CAPACIDAD_PASAJEROS,
-                    MOD_CAPACIDAD_CARGA,
-                    MOD_ALCANCE_KM,
-                    MOD_VELOCIDAD_CRUCERO,
-                    MOD_ANIO_INTRODUCCION,
-                    MOD_TIPO_MOTOR
-                FROM AER_MODELOAVION
-                WHERE MOD_ID_MODELO = :id";
+            var query = _sqlQueryProvider.GetQuery("ModeloAvionService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -101,29 +79,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ModeloAvionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_MODELOAVION
-                (
-                    MOD_NOMBRE_MODELO,
-                    MOD_FABRICANTE,
-                    MOD_CAPACIDAD_PASAJEROS,
-                    MOD_CAPACIDAD_CARGA,
-                    MOD_ALCANCE_KM,
-                    MOD_VELOCIDAD_CRUCERO,
-                    MOD_ANIO_INTRODUCCION,
-                    MOD_TIPO_MOTOR
-                )
-                VALUES
-                (
-                    :nombreModelo,
-                    :fabricante,
-                    :capacidadPasajeros,
-                    :capacidadCarga,
-                    :alcanceKm,
-                    :velocidadCrucero,
-                    :anioIntroduccion,
-                    :tipoMotor
-                )";
+            var query = _sqlQueryProvider.GetQuery("ModeloAvionService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -144,18 +100,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ModeloAvionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_MODELOAVION
-                SET
-                    MOD_NOMBRE_MODELO = :nombreModelo,
-                    MOD_FABRICANTE = :fabricante,
-                    MOD_CAPACIDAD_PASAJEROS = :capacidadPasajeros,
-                    MOD_CAPACIDAD_CARGA = :capacidadCarga,
-                    MOD_ALCANCE_KM = :alcanceKm,
-                    MOD_VELOCIDAD_CRUCERO = :velocidadCrucero,
-                    MOD_ANIO_INTRODUCCION = :anioIntroduccion,
-                    MOD_TIPO_MOTOR = :tipoMotor
-                WHERE MOD_ID_MODELO = :id";
+            var query = _sqlQueryProvider.GetQuery("ModeloAvionService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -177,9 +122,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_MODELOAVION
-                WHERE MOD_ID_MODELO = :id";
+            var query = _sqlQueryProvider.GetQuery("ModeloAvionService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

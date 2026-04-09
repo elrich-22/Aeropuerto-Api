@@ -1,0 +1,22 @@
+INSERT INTO AER_AVION
+                (
+                    AVI_MATRICULA,
+                    AVI_ID_MODELO,
+                    AVI_ID_AEROLINEA,
+                    AVI_ANIO_FABRICACION,
+                    AVI_ESTADO,
+                    AVI_ULTIMA_REVISION,
+                    AVI_PROXIMA_REVISION,
+                    AVI_HORAS_VUELO
+                )
+                VALUES
+                (
+                    :matricula,
+                    :idModelo,
+                    :idAerolinea,
+                    :anioFabricacion,
+                    :estado,
+                    :ultimaRevision,
+                    :proximaRevision,
+                    :horasVuelo
+                )

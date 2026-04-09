@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,25 +7,19 @@ namespace AeropuertoAPI.Services
     public class MetodoPagoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public MetodoPagoService(DatabaseSettings settings)
+        public MetodoPagoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<MetodoPagoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<MetodoPagoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    MET_ID_METODO_PAGO,
-                    MET_NOMBRE,
-                    MET_TIPO,
-                    MET_ESTADO,
-                    MET_COMISION_PORCENTAJE
-                FROM AER_METODOPAGO
-                ORDER BY MET_ID_METODO_PAGO";
+            var query = _sqlQueryProvider.GetQuery("MetodoPagoService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -52,15 +46,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<MetodoPagoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    MET_ID_METODO_PAGO,
-                    MET_NOMBRE,
-                    MET_TIPO,
-                    MET_ESTADO,
-                    MET_COMISION_PORCENTAJE
-                FROM AER_METODOPAGO
-                WHERE MET_ID_METODO_PAGO = :id";
+            var query = _sqlQueryProvider.GetQuery("MetodoPagoService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -89,21 +75,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(MetodoPagoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_METODOPAGO
-                (
-                    MET_NOMBRE,
-                    MET_TIPO,
-                    MET_ESTADO,
-                    MET_COMISION_PORCENTAJE
-                )
-                VALUES
-                (
-                    :nombre,
-                    :tipo,
-                    :estado,
-                    :comisionPorcentaje
-                )";
+            var query = _sqlQueryProvider.GetQuery("MetodoPagoService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -120,14 +92,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, MetodoPagoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_METODOPAGO
-                SET
-                    MET_NOMBRE = :nombre,
-                    MET_TIPO = :tipo,
-                    MET_ESTADO = :estado,
-                    MET_COMISION_PORCENTAJE = :comisionPorcentaje
-                WHERE MET_ID_METODO_PAGO = :id";
+            var query = _sqlQueryProvider.GetQuery("MetodoPagoService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -145,9 +110,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_METODOPAGO
-                WHERE MET_ID_METODO_PAGO = :id";
+            var query = _sqlQueryProvider.GetQuery("MetodoPagoService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

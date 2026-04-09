@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,25 +7,19 @@ namespace AeropuertoAPI.Services
     public class TripulacionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public TripulacionService(DatabaseSettings settings)
+        public TripulacionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<TripulacionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<TripulacionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    TRI_ID_TRIPULACION,
-                    TRI_ID_VUELO,
-                    TRI_ID_EMPLEADO,
-                    TRI_ROL,
-                    TRI_HORAS_VUELO
-                FROM AER_TRIPULACION
-                ORDER BY TRI_ID_TRIPULACION";
+            var query = _sqlQueryProvider.GetQuery("TripulacionService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -43,15 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<TripulacionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    TRI_ID_TRIPULACION,
-                    TRI_ID_VUELO,
-                    TRI_ID_EMPLEADO,
-                    TRI_ROL,
-                    TRI_HORAS_VUELO
-                FROM AER_TRIPULACION
-                WHERE TRI_ID_TRIPULACION = :id";
+            var query = _sqlQueryProvider.GetQuery("TripulacionService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -69,21 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(TripulacionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_TRIPULACION
-                (
-                    TRI_ID_VUELO,
-                    TRI_ID_EMPLEADO,
-                    TRI_ROL,
-                    TRI_HORAS_VUELO
-                )
-                VALUES
-                (
-                    :idVuelo,
-                    :idEmpleado,
-                    :rol,
-                    :horasVuelo
-                )";
+            var query = _sqlQueryProvider.GetQuery("TripulacionService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -99,14 +71,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, TripulacionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_TRIPULACION
-                SET
-                    TRI_ID_VUELO = :idVuelo,
-                    TRI_ID_EMPLEADO = :idEmpleado,
-                    TRI_ROL = :rol,
-                    TRI_HORAS_VUELO = :horasVuelo
-                WHERE TRI_ID_TRIPULACION = :id";
+            var query = _sqlQueryProvider.GetQuery("TripulacionService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -123,9 +88,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_TRIPULACION
-                WHERE TRI_ID_TRIPULACION = :id";
+            var query = _sqlQueryProvider.GetQuery("TripulacionService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,33 +7,19 @@ namespace AeropuertoAPI.Services
     public class AeropuertoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AeropuertoService(DatabaseSettings settings)
+        public AeropuertoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AeropuertoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<AeropuertoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    AER_ID,
-                    AER_CODIGO_AEROPUERTO,
-                    AER_NOMBRE,
-                    AER_CIUDAD,
-                    AER_PAIS,
-                    AER_ZONA_HORARIA,
-                    AER_ESTADO,
-                    AER_TIPO,
-                    AER_LATITUD,
-                    AER_LONGITUD,
-                    AER_CODIGO_IATA,
-                    AER_CODIGO_ICAO,
-                    AER_FECHA_REGISTRO
-                FROM AER_AEROPUERTO
-                ORDER BY AER_ID";
+            var query = _sqlQueryProvider.GetQuery("AeropuertoService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -66,23 +52,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AeropuertoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    AER_ID,
-                    AER_CODIGO_AEROPUERTO,
-                    AER_NOMBRE,
-                    AER_CIUDAD,
-                    AER_PAIS,
-                    AER_ZONA_HORARIA,
-                    AER_ESTADO,
-                    AER_TIPO,
-                    AER_LATITUD,
-                    AER_LONGITUD,
-                    AER_CODIGO_IATA,
-                    AER_CODIGO_ICAO,
-                    AER_FECHA_REGISTRO
-                FROM AER_AEROPUERTO
-                WHERE AER_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AeropuertoService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -117,35 +87,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AeropuertoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_AEROPUERTO
-                (
-                    AER_CODIGO_AEROPUERTO,
-                    AER_NOMBRE,
-                    AER_CIUDAD,
-                    AER_PAIS,
-                    AER_ZONA_HORARIA,
-                    AER_ESTADO,
-                    AER_TIPO,
-                    AER_LATITUD,
-                    AER_LONGITUD,
-                    AER_CODIGO_IATA,
-                    AER_CODIGO_ICAO
-                )
-                VALUES
-                (
-                    :codigoAeropuerto,
-                    :nombre,
-                    :ciudad,
-                    :pais,
-                    :zonaHoraria,
-                    :estado,
-                    :tipo,
-                    :latitud,
-                    :longitud,
-                    :codigoIata,
-                    :codigoIcao
-                )";
+            var query = _sqlQueryProvider.GetQuery("AeropuertoService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -169,21 +111,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AeropuertoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_AEROPUERTO
-                SET
-                    AER_CODIGO_AEROPUERTO = :codigoAeropuerto,
-                    AER_NOMBRE = :nombre,
-                    AER_CIUDAD = :ciudad,
-                    AER_PAIS = :pais,
-                    AER_ZONA_HORARIA = :zonaHoraria,
-                    AER_ESTADO = :estado,
-                    AER_TIPO = :tipo,
-                    AER_LATITUD = :latitud,
-                    AER_LONGITUD = :longitud,
-                    AER_CODIGO_IATA = :codigoIata,
-                    AER_CODIGO_ICAO = :codigoIcao
-                WHERE AER_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AeropuertoService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -208,9 +136,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_AEROPUERTO
-                WHERE AER_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("AeropuertoService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

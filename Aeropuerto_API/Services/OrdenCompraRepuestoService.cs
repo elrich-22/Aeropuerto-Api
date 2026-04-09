@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class OrdenCompraRepuestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public OrdenCompraRepuestoService(DatabaseSettings settings)
+        public OrdenCompraRepuestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<OrdenCompraRepuestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<OrdenCompraRepuestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ORC_ID_ORDEN_COMPRA,
-                    ORC_NUMERO_ORDEN,
-                    ORC_ID_PROVEEDOR,
-                    ORC_FECHA_ORDEN,
-                    ORC_FECHA_ENTREGA_ESPERADA,
-                    ORC_FECHA_ENTREGA_REAL,
-                    ORC_MONTO_TOTAL,
-                    ORC_ESTADO,
-                    ORC_ID_EMPLEADO_SOLICITA,
-                    ORC_OBSERVACIONES
-                FROM AER_ORDENCOMPRAREPUESTO
-                ORDER BY ORC_ID_ORDEN_COMPRA";
+            var query = _sqlQueryProvider.GetQuery("OrdenCompraRepuestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<OrdenCompraRepuestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ORC_ID_ORDEN_COMPRA,
-                    ORC_NUMERO_ORDEN,
-                    ORC_ID_PROVEEDOR,
-                    ORC_FECHA_ORDEN,
-                    ORC_FECHA_ENTREGA_ESPERADA,
-                    ORC_FECHA_ENTREGA_REAL,
-                    ORC_MONTO_TOTAL,
-                    ORC_ESTADO,
-                    ORC_ID_EMPLEADO_SOLICITA,
-                    ORC_OBSERVACIONES
-                FROM AER_ORDENCOMPRAREPUESTO
-                WHERE ORC_ID_ORDEN_COMPRA = :id";
+            var query = _sqlQueryProvider.GetQuery("OrdenCompraRepuestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(OrdenCompraRepuestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ORDENCOMPRAREPUESTO
-                (
-                    ORC_NUMERO_ORDEN,
-                    ORC_ID_PROVEEDOR,
-                    ORC_FECHA_ORDEN,
-                    ORC_FECHA_ENTREGA_ESPERADA,
-                    ORC_FECHA_ENTREGA_REAL,
-                    ORC_MONTO_TOTAL,
-                    ORC_ESTADO,
-                    ORC_ID_EMPLEADO_SOLICITA,
-                    ORC_OBSERVACIONES
-                )
-                VALUES
-                (
-                    :numeroOrden,
-                    :idProveedor,
-                    :fechaOrden,
-                    :fechaEntregaEsperada,
-                    :fechaEntregaReal,
-                    :montoTotal,
-                    :estado,
-                    :idEmpleadoSolicita,
-                    :observaciones
-                )";
+            var query = _sqlQueryProvider.GetQuery("OrdenCompraRepuestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, OrdenCompraRepuestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ORDENCOMPRAREPUESTO
-                SET
-                    ORC_NUMERO_ORDEN = :numeroOrden,
-                    ORC_ID_PROVEEDOR = :idProveedor,
-                    ORC_FECHA_ORDEN = :fechaOrden,
-                    ORC_FECHA_ENTREGA_ESPERADA = :fechaEntregaEsperada,
-                    ORC_FECHA_ENTREGA_REAL = :fechaEntregaReal,
-                    ORC_MONTO_TOTAL = :montoTotal,
-                    ORC_ESTADO = :estado,
-                    ORC_ID_EMPLEADO_SOLICITA = :idEmpleadoSolicita,
-                    ORC_OBSERVACIONES = :observaciones
-                WHERE ORC_ID_ORDEN_COMPRA = :id";
+            var query = _sqlQueryProvider.GetQuery("OrdenCompraRepuestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ORDENCOMPRAREPUESTO
-                WHERE ORC_ID_ORDEN_COMPRA = :id";
+            var query = _sqlQueryProvider.GetQuery("OrdenCompraRepuestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

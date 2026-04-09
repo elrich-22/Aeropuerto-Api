@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class TransaccionPagoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public TransaccionPagoService(DatabaseSettings settings)
+        public TransaccionPagoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<TransaccionPagoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<TransaccionPagoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    TRA_ID_TRANSACCION,
-                    TRA_ID_RESERVA,
-                    TRA_ID_METODO_PAGO,
-                    TRA_MONTO_TOTAL,
-                    TRA_MONEDA,
-                    TRA_FECHA_TRANSACCION,
-                    TRA_ESTADO,
-                    TRA_NUMERO_AUTORIZACION,
-                    TRA_REFERENCIA_EXTERNA,
-                    TRA_IP_CLIENTE,
-                    TRA_DETALLES_TARJETA
-                FROM AER_TRANSACCIONPAGO
-                ORDER BY TRA_ID_TRANSACCION";
+            var query = _sqlQueryProvider.GetQuery("TransaccionPagoService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -62,21 +50,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<TransaccionPagoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    TRA_ID_TRANSACCION,
-                    TRA_ID_RESERVA,
-                    TRA_ID_METODO_PAGO,
-                    TRA_MONTO_TOTAL,
-                    TRA_MONEDA,
-                    TRA_FECHA_TRANSACCION,
-                    TRA_ESTADO,
-                    TRA_NUMERO_AUTORIZACION,
-                    TRA_REFERENCIA_EXTERNA,
-                    TRA_IP_CLIENTE,
-                    TRA_DETALLES_TARJETA
-                FROM AER_TRANSACCIONPAGO
-                WHERE TRA_ID_TRANSACCION = :id";
+            var query = _sqlQueryProvider.GetQuery("TransaccionPagoService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -109,33 +83,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(TransaccionPagoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_TRANSACCIONPAGO
-                (
-                    TRA_ID_RESERVA,
-                    TRA_ID_METODO_PAGO,
-                    TRA_MONTO_TOTAL,
-                    TRA_MONEDA,
-                    TRA_FECHA_TRANSACCION,
-                    TRA_ESTADO,
-                    TRA_NUMERO_AUTORIZACION,
-                    TRA_REFERENCIA_EXTERNA,
-                    TRA_IP_CLIENTE,
-                    TRA_DETALLES_TARJETA
-                )
-                VALUES
-                (
-                    :idReserva,
-                    :idMetodoPago,
-                    :montoTotal,
-                    :moneda,
-                    :fechaTransaccion,
-                    :estado,
-                    :numeroAutorizacion,
-                    :referenciaExterna,
-                    :ipCliente,
-                    :detallesTarjeta
-                )";
+            var query = _sqlQueryProvider.GetQuery("TransaccionPagoService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -158,20 +106,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, TransaccionPagoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_TRANSACCIONPAGO
-                SET
-                    TRA_ID_RESERVA = :idReserva,
-                    TRA_ID_METODO_PAGO = :idMetodoPago,
-                    TRA_MONTO_TOTAL = :montoTotal,
-                    TRA_MONEDA = :moneda,
-                    TRA_FECHA_TRANSACCION = :fechaTransaccion,
-                    TRA_ESTADO = :estado,
-                    TRA_NUMERO_AUTORIZACION = :numeroAutorizacion,
-                    TRA_REFERENCIA_EXTERNA = :referenciaExterna,
-                    TRA_IP_CLIENTE = :ipCliente,
-                    TRA_DETALLES_TARJETA = :detallesTarjeta
-                WHERE TRA_ID_TRANSACCION = :id";
+            var query = _sqlQueryProvider.GetQuery("TransaccionPagoService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -195,9 +130,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_TRANSACCIONPAGO
-                WHERE TRA_ID_TRANSACCION = :id";
+            var query = _sqlQueryProvider.GetQuery("TransaccionPagoService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

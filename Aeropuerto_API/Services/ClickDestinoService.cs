@@ -7,28 +7,19 @@ namespace AeropuertoAPI.Services
     public class ClickDestinoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ClickDestinoService(DatabaseSettings settings)
+        public ClickDestinoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ClickDestinoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ClickDestinoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    CLI_ID_CLICK,
-                    CLI_ID_SESION,
-                    CLI_ID_AEROPUERTO_DESTINO,
-                    CLI_FECHA_CLICK,
-                    CLI_ORIGEN_BUSQUEDA,
-                    CLI_FECHA_VIAJE_BUSCADA,
-                    CLI_NUMERO_PASAJEROS,
-                    CLI_CLASE_BUSCADA
-                FROM AER_CLICKDESTINO
-                ORDER BY CLI_ID_CLICK";
+            var query = _sqlQueryProvider.GetQuery("ClickDestinoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -46,18 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ClickDestinoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    CLI_ID_CLICK,
-                    CLI_ID_SESION,
-                    CLI_ID_AEROPUERTO_DESTINO,
-                    CLI_FECHA_CLICK,
-                    CLI_ORIGEN_BUSQUEDA,
-                    CLI_FECHA_VIAJE_BUSCADA,
-                    CLI_NUMERO_PASAJEROS,
-                    CLI_CLASE_BUSCADA
-                FROM AER_CLICKDESTINO
-                WHERE CLI_ID_CLICK = :id";
+            var query = _sqlQueryProvider.GetQuery("ClickDestinoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -75,27 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ClickDestinoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_CLICKDESTINO
-                (
-                    CLI_ID_SESION,
-                    CLI_ID_AEROPUERTO_DESTINO,
-                    CLI_FECHA_CLICK,
-                    CLI_ORIGEN_BUSQUEDA,
-                    CLI_FECHA_VIAJE_BUSCADA,
-                    CLI_NUMERO_PASAJEROS,
-                    CLI_CLASE_BUSCADA
-                )
-                VALUES
-                (
-                    :idSesion,
-                    :idAeropuertoDestino,
-                    :fechaClick,
-                    :origenBusqueda,
-                    :fechaViajeBuscada,
-                    :numeroPasajeros,
-                    :claseBuscada
-                )";
+            var query = _sqlQueryProvider.GetQuery("ClickDestinoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -114,17 +74,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ClickDestinoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_CLICKDESTINO
-                SET
-                    CLI_ID_SESION = :idSesion,
-                    CLI_ID_AEROPUERTO_DESTINO = :idAeropuertoDestino,
-                    CLI_FECHA_CLICK = :fechaClick,
-                    CLI_ORIGEN_BUSQUEDA = :origenBusqueda,
-                    CLI_FECHA_VIAJE_BUSCADA = :fechaViajeBuscada,
-                    CLI_NUMERO_PASAJEROS = :numeroPasajeros,
-                    CLI_CLASE_BUSCADA = :claseBuscada
-                WHERE CLI_ID_CLICK = :id";
+            var query = _sqlQueryProvider.GetQuery("ClickDestinoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -144,9 +94,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_CLICKDESTINO
-                WHERE CLI_ID_CLICK = :id";
+            var query = _sqlQueryProvider.GetQuery("ClickDestinoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -173,3 +121,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class PlanillaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PlanillaService(DatabaseSettings settings)
+        public PlanillaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PlanillaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PlanillaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PLA_ID_PLANILLA,
-                    PLA_ID_EMPLEADO,
-                    PLA_PERIODO_INICIO,
-                    PLA_PERIODO_FIN,
-                    PLA_SALARIO_BASE,
-                    PLA_BONIFICACIONES,
-                    PLA_HORAS_EXTRA,
-                    PLA_DEDUCCIONES,
-                    PLA_SALARIO_NETO,
-                    PLA_FECHA_PAGO,
-                    PLA_ESTADO
-                FROM AER_PLANILLA
-                ORDER BY PLA_ID_PLANILLA";
+            var query = _sqlQueryProvider.GetQuery("PlanillaService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -49,21 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PlanillaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PLA_ID_PLANILLA,
-                    PLA_ID_EMPLEADO,
-                    PLA_PERIODO_INICIO,
-                    PLA_PERIODO_FIN,
-                    PLA_SALARIO_BASE,
-                    PLA_BONIFICACIONES,
-                    PLA_HORAS_EXTRA,
-                    PLA_DEDUCCIONES,
-                    PLA_SALARIO_NETO,
-                    PLA_FECHA_PAGO,
-                    PLA_ESTADO
-                FROM AER_PLANILLA
-                WHERE PLA_ID_PLANILLA = :id";
+            var query = _sqlQueryProvider.GetQuery("PlanillaService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -81,33 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PlanillaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PLANILLA
-                (
-                    PLA_ID_EMPLEADO,
-                    PLA_PERIODO_INICIO,
-                    PLA_PERIODO_FIN,
-                    PLA_SALARIO_BASE,
-                    PLA_BONIFICACIONES,
-                    PLA_HORAS_EXTRA,
-                    PLA_DEDUCCIONES,
-                    PLA_SALARIO_NETO,
-                    PLA_FECHA_PAGO,
-                    PLA_ESTADO
-                )
-                VALUES
-                (
-                    :idEmpleado,
-                    :periodoInicio,
-                    :periodoFin,
-                    :salarioBase,
-                    :bonificaciones,
-                    :horasExtra,
-                    :deducciones,
-                    :salarioNeto,
-                    :fechaPago,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("PlanillaService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -129,20 +77,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PlanillaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PLANILLA
-                SET
-                    PLA_ID_EMPLEADO = :idEmpleado,
-                    PLA_PERIODO_INICIO = :periodoInicio,
-                    PLA_PERIODO_FIN = :periodoFin,
-                    PLA_SALARIO_BASE = :salarioBase,
-                    PLA_BONIFICACIONES = :bonificaciones,
-                    PLA_HORAS_EXTRA = :horasExtra,
-                    PLA_DEDUCCIONES = :deducciones,
-                    PLA_SALARIO_NETO = :salarioNeto,
-                    PLA_FECHA_PAGO = :fechaPago,
-                    PLA_ESTADO = :estado
-                WHERE PLA_ID_PLANILLA = :id";
+            var query = _sqlQueryProvider.GetQuery("PlanillaService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -165,9 +100,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PLANILLA
-                WHERE PLA_ID_PLANILLA = :id";
+            var query = _sqlQueryProvider.GetQuery("PlanillaService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -197,3 +130,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

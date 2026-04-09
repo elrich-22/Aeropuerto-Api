@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,23 +7,19 @@ namespace AeropuertoAPI.Services
     public class DiasVueloService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public DiasVueloService(DatabaseSettings settings)
+        public DiasVueloService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<DiasVueloResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<DiasVueloResponseDto>();
 
-            const string query = @"
-                SELECT
-                    DIA_ID_DIA_VUELO,
-                    DIA_ID_PROGRAMA_VUELO,
-                    DIA_DIA_SEMANA
-                FROM AER_DIASVUELO
-                ORDER BY DIA_ID_DIA_VUELO";
+            var query = _sqlQueryProvider.GetQuery("DiasVueloService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -41,13 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<DiasVueloResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    DIA_ID_DIA_VUELO,
-                    DIA_ID_PROGRAMA_VUELO,
-                    DIA_DIA_SEMANA
-                FROM AER_DIASVUELO
-                WHERE DIA_ID_DIA_VUELO = :id";
+            var query = _sqlQueryProvider.GetQuery("DiasVueloService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -65,17 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(DiasVueloCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_DIASVUELO
-                (
-                    DIA_ID_PROGRAMA_VUELO,
-                    DIA_DIA_SEMANA
-                )
-                VALUES
-                (
-                    :idProgramaVuelo,
-                    :diaSemana
-                )";
+            var query = _sqlQueryProvider.GetQuery("DiasVueloService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -89,12 +69,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, DiasVueloUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_DIASVUELO
-                SET
-                    DIA_ID_PROGRAMA_VUELO = :idProgramaVuelo,
-                    DIA_DIA_SEMANA = :diaSemana
-                WHERE DIA_ID_DIA_VUELO = :id";
+            var query = _sqlQueryProvider.GetQuery("DiasVueloService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -109,9 +84,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_DIASVUELO
-                WHERE DIA_ID_DIA_VUELO = :id";
+            var query = _sqlQueryProvider.GetQuery("DiasVueloService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,27 +7,19 @@ namespace AeropuertoAPI.Services
     public class PuestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public PuestoService(DatabaseSettings settings)
+        public PuestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<PuestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<PuestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PUE_ID_PUESTO,
-                    PUE_NOMBRE,
-                    PUE_ID_DEPARTAMENTO,
-                    PUE_DESCRIPCION,
-                    PUE_SALARIO_MINIMO,
-                    PUE_SALARIO_MAXIMO,
-                    PUE_REQUIERE_LICENCIA
-                FROM AER_PUESTO
-                ORDER BY PUE_ID_PUESTO";
+            var query = _sqlQueryProvider.GetQuery("PuestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -45,17 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<PuestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PUE_ID_PUESTO,
-                    PUE_NOMBRE,
-                    PUE_ID_DEPARTAMENTO,
-                    PUE_DESCRIPCION,
-                    PUE_SALARIO_MINIMO,
-                    PUE_SALARIO_MAXIMO,
-                    PUE_REQUIERE_LICENCIA
-                FROM AER_PUESTO
-                WHERE PUE_ID_PUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("PuestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -73,25 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(PuestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PUESTO
-                (
-                    PUE_NOMBRE,
-                    PUE_ID_DEPARTAMENTO,
-                    PUE_DESCRIPCION,
-                    PUE_SALARIO_MINIMO,
-                    PUE_SALARIO_MAXIMO,
-                    PUE_REQUIERE_LICENCIA
-                )
-                VALUES
-                (
-                    :nombre,
-                    :idDepartamento,
-                    :descripcion,
-                    :salarioMinimo,
-                    :salarioMaximo,
-                    :requiereLicencia
-                )";
+            var query = _sqlQueryProvider.GetQuery("PuestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -109,16 +73,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, PuestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PUESTO
-                SET
-                    PUE_NOMBRE = :nombre,
-                    PUE_ID_DEPARTAMENTO = :idDepartamento,
-                    PUE_DESCRIPCION = :descripcion,
-                    PUE_SALARIO_MINIMO = :salarioMinimo,
-                    PUE_SALARIO_MAXIMO = :salarioMaximo,
-                    PUE_REQUIERE_LICENCIA = :requiereLicencia
-                WHERE PUE_ID_PUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("PuestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -137,9 +92,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PUESTO
-                WHERE PUE_ID_PUESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("PuestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

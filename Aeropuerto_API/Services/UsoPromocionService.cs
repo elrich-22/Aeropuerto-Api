@@ -7,25 +7,19 @@ namespace AeropuertoAPI.Services
     public class UsoPromocionService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public UsoPromocionService(DatabaseSettings settings)
+        public UsoPromocionService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<UsoPromocionResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<UsoPromocionResponseDto>();
 
-            const string query = @"
-                SELECT
-                    USO_ID_USO,
-                    USO_ID_PROMOCION,
-                    USO_ID_RESERVA,
-                    USO_FECHA_USO,
-                    USO_MONTO_DESCUENTO
-                FROM AER_USOPROMOCION
-                ORDER BY USO_ID_USO";
+            var query = _sqlQueryProvider.GetQuery("UsoPromocionService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -43,15 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<UsoPromocionResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    USO_ID_USO,
-                    USO_ID_PROMOCION,
-                    USO_ID_RESERVA,
-                    USO_FECHA_USO,
-                    USO_MONTO_DESCUENTO
-                FROM AER_USOPROMOCION
-                WHERE USO_ID_USO = :id";
+            var query = _sqlQueryProvider.GetQuery("UsoPromocionService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -69,21 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(UsoPromocionCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_USOPROMOCION
-                (
-                    USO_ID_PROMOCION,
-                    USO_ID_RESERVA,
-                    USO_FECHA_USO,
-                    USO_MONTO_DESCUENTO
-                )
-                VALUES
-                (
-                    :idPromocion,
-                    :idReserva,
-                    :fechaUso,
-                    :montoDescuento
-                )";
+            var query = _sqlQueryProvider.GetQuery("UsoPromocionService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -99,14 +71,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, UsoPromocionUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_USOPROMOCION
-                SET
-                    USO_ID_PROMOCION = :idPromocion,
-                    USO_ID_RESERVA = :idReserva,
-                    USO_FECHA_USO = :fechaUso,
-                    USO_MONTO_DESCUENTO = :montoDescuento
-                WHERE USO_ID_USO = :id";
+            var query = _sqlQueryProvider.GetQuery("UsoPromocionService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -123,9 +88,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_USOPROMOCION
-                WHERE USO_ID_USO = :id";
+            var query = _sqlQueryProvider.GetQuery("UsoPromocionService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -149,3 +112,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

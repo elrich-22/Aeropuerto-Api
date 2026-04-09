@@ -1,0 +1,2 @@
+DELETE FROM AER_DIASVUELO
+                WHERE DIA_ID_DIA_VUELO = :id

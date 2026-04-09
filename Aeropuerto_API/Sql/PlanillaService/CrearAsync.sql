@@ -1,0 +1,26 @@
+INSERT INTO AER_PLANILLA
+                (
+                    PLA_ID_EMPLEADO,
+                    PLA_PERIODO_INICIO,
+                    PLA_PERIODO_FIN,
+                    PLA_SALARIO_BASE,
+                    PLA_BONIFICACIONES,
+                    PLA_HORAS_EXTRA,
+                    PLA_DEDUCCIONES,
+                    PLA_SALARIO_NETO,
+                    PLA_FECHA_PAGO,
+                    PLA_ESTADO
+                )
+                VALUES
+                (
+                    :idEmpleado,
+                    :periodoInicio,
+                    :periodoFin,
+                    :salarioBase,
+                    :bonificaciones,
+                    :horasExtra,
+                    :deducciones,
+                    :salarioNeto,
+                    :fechaPago,
+                    :estado
+                )

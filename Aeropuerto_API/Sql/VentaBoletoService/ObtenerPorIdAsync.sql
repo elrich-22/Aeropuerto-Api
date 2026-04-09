@@ -1,0 +1,16 @@
+SELECT
+                    VEN_ID_VENTA,
+                    VEN_NUMERO_VENTA,
+                    VEN_ID_PUNTO_VENTA,
+                    VEN_ID_EMPLEADO_VENDEDOR,
+                    VEN_ID_PASAJERO,
+                    VEN_FECHA_VENTA,
+                    VEN_MONTO_SUBTOTAL,
+                    VEN_IMPUESTOS,
+                    VEN_DESCUENTOS,
+                    VEN_MONTO_TOTAL,
+                    VEN_ID_METODO_PAGO,
+                    VEN_CANAL_VENTA,
+                    VEN_ESTADO
+                FROM AER_VENTABOLETO
+                WHERE VEN_ID_VENTA = :id

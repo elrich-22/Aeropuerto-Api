@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class ProveedorService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ProveedorService(DatabaseSettings settings)
+        public ProveedorService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ProveedorResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ProveedorResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PRV_ID_PROVEEDOR,
-                    PRV_NOMBRE_EMPRESA,
-                    PRV_NIT,
-                    PRV_DIRECCION,
-                    PRV_TELEFONO,
-                    PRV_EMAIL,
-                    PRV_CONTACTO_PRINCIPAL,
-                    PRV_PAIS,
-                    PRV_ESTADO,
-                    PRV_CALIFICACION
-                FROM AER_PROVEEDOR
-                ORDER BY PRV_ID_PROVEEDOR";
+            var query = _sqlQueryProvider.GetQuery("ProveedorService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ProveedorResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PRV_ID_PROVEEDOR,
-                    PRV_NOMBRE_EMPRESA,
-                    PRV_NIT,
-                    PRV_DIRECCION,
-                    PRV_TELEFONO,
-                    PRV_EMAIL,
-                    PRV_CONTACTO_PRINCIPAL,
-                    PRV_PAIS,
-                    PRV_ESTADO,
-                    PRV_CALIFICACION
-                FROM AER_PROVEEDOR
-                WHERE PRV_ID_PROVEEDOR = :id";
+            var query = _sqlQueryProvider.GetQuery("ProveedorService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ProveedorCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PROVEEDOR
-                (
-                    PRV_NOMBRE_EMPRESA,
-                    PRV_NIT,
-                    PRV_DIRECCION,
-                    PRV_TELEFONO,
-                    PRV_EMAIL,
-                    PRV_CONTACTO_PRINCIPAL,
-                    PRV_PAIS,
-                    PRV_ESTADO,
-                    PRV_CALIFICACION
-                )
-                VALUES
-                (
-                    :nombreEmpresa,
-                    :nit,
-                    :direccion,
-                    :telefono,
-                    :email,
-                    :contactoPrincipal,
-                    :pais,
-                    :estado,
-                    :calificacion
-                )";
+            var query = _sqlQueryProvider.GetQuery("ProveedorService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ProveedorUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PROVEEDOR
-                SET
-                    PRV_NOMBRE_EMPRESA = :nombreEmpresa,
-                    PRV_NIT = :nit,
-                    PRV_DIRECCION = :direccion,
-                    PRV_TELEFONO = :telefono,
-                    PRV_EMAIL = :email,
-                    PRV_CONTACTO_PRINCIPAL = :contactoPrincipal,
-                    PRV_PAIS = :pais,
-                    PRV_ESTADO = :estado,
-                    PRV_CALIFICACION = :calificacion
-                WHERE PRV_ID_PROVEEDOR = :id";
+            var query = _sqlQueryProvider.GetQuery("ProveedorService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PROVEEDOR
-                WHERE PRV_ID_PROVEEDOR = :id";
+            var query = _sqlQueryProvider.GetQuery("ProveedorService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

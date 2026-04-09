@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class ArrestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ArrestoService(DatabaseSettings settings)
+        public ArrestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ArrestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ArrestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ARR_ID_ARRESTO,
-                    ARR_ID_PASAJERO,
-                    ARR_ID_VUELO,
-                    ARR_ID_AEROPUERTO,
-                    ARR_FECHA_HORA_ARRESTO,
-                    ARR_MOTIVO,
-                    ARR_AUTORIDAD_CARGO,
-                    ARR_DESCRIPCION_INCIDENTE,
-                    ARR_UBICACION_ARRESTO,
-                    ARR_ESTADO_CASO,
-                    ARR_NUMERO_EXPEDIENTE
-                FROM AER_ARRESTO
-                ORDER BY ARR_ID_ARRESTO";
+            var query = _sqlQueryProvider.GetQuery("ArrestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -49,21 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ArrestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ARR_ID_ARRESTO,
-                    ARR_ID_PASAJERO,
-                    ARR_ID_VUELO,
-                    ARR_ID_AEROPUERTO,
-                    ARR_FECHA_HORA_ARRESTO,
-                    ARR_MOTIVO,
-                    ARR_AUTORIDAD_CARGO,
-                    ARR_DESCRIPCION_INCIDENTE,
-                    ARR_UBICACION_ARRESTO,
-                    ARR_ESTADO_CASO,
-                    ARR_NUMERO_EXPEDIENTE
-                FROM AER_ARRESTO
-                WHERE ARR_ID_ARRESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("ArrestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -81,33 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ArrestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ARRESTO
-                (
-                    ARR_ID_PASAJERO,
-                    ARR_ID_VUELO,
-                    ARR_ID_AEROPUERTO,
-                    ARR_FECHA_HORA_ARRESTO,
-                    ARR_MOTIVO,
-                    ARR_AUTORIDAD_CARGO,
-                    ARR_DESCRIPCION_INCIDENTE,
-                    ARR_UBICACION_ARRESTO,
-                    ARR_ESTADO_CASO,
-                    ARR_NUMERO_EXPEDIENTE
-                )
-                VALUES
-                (
-                    :idPasajero,
-                    :idVuelo,
-                    :idAeropuerto,
-                    :fechaHoraArresto,
-                    :motivo,
-                    :autoridadCargo,
-                    :descripcionIncidente,
-                    :ubicacionArresto,
-                    :estadoCaso,
-                    :numeroExpediente
-                )";
+            var query = _sqlQueryProvider.GetQuery("ArrestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -129,20 +77,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ArrestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ARRESTO
-                SET
-                    ARR_ID_PASAJERO = :idPasajero,
-                    ARR_ID_VUELO = :idVuelo,
-                    ARR_ID_AEROPUERTO = :idAeropuerto,
-                    ARR_FECHA_HORA_ARRESTO = :fechaHoraArresto,
-                    ARR_MOTIVO = :motivo,
-                    ARR_AUTORIDAD_CARGO = :autoridadCargo,
-                    ARR_DESCRIPCION_INCIDENTE = :descripcionIncidente,
-                    ARR_UBICACION_ARRESTO = :ubicacionArresto,
-                    ARR_ESTADO_CASO = :estadoCaso,
-                    ARR_NUMERO_EXPEDIENTE = :numeroExpediente
-                WHERE ARR_ID_ARRESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("ArrestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -165,9 +100,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ARRESTO
-                WHERE ARR_ID_ARRESTO = :id";
+            var query = _sqlQueryProvider.GetQuery("ArrestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -197,3 +130,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

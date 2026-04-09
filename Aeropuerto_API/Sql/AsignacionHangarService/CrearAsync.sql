@@ -1,0 +1,24 @@
+INSERT INTO AER_ASIGNACIONHANGAR
+                (
+                    ASH_ID_HANGAR,
+                    ASH_ID_AVION,
+                    ASH_FECHA_ENTRADA,
+                    ASH_FECHA_SALIDA_PROGRAMADA,
+                    ASH_FECHA_SALIDA_REAL,
+                    ASH_MOTIVO,
+                    ASH_COSTO_HORA,
+                    ASH_COSTO_TOTAL,
+                    ASH_ESTADO
+                )
+                VALUES
+                (
+                    :idHangar,
+                    :idAvion,
+                    :fechaEntrada,
+                    :fechaSalidaProgramada,
+                    :fechaSalidaReal,
+                    :motivo,
+                    :costoHora,
+                    :costoTotal,
+                    :estado
+                )

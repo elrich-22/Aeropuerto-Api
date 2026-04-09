@@ -7,27 +7,19 @@ namespace AeropuertoAPI.Services
     public class ItemCarritoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ItemCarritoService(DatabaseSettings settings)
+        public ItemCarritoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ItemCarritoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ItemCarritoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    ITE_ID_ITEM_CARRITO,
-                    ITE_ID_CARRITO,
-                    ITE_ID_VUELO,
-                    ITE_NUMERO_ASIENTO,
-                    ITE_CLASE,
-                    ITE_PRECIO_UNITARIO,
-                    ITE_CANTIDAD
-                FROM AER_ITEMCARRITO
-                ORDER BY ITE_ID_ITEM_CARRITO";
+            var query = _sqlQueryProvider.GetQuery("ItemCarritoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -45,17 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ItemCarritoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    ITE_ID_ITEM_CARRITO,
-                    ITE_ID_CARRITO,
-                    ITE_ID_VUELO,
-                    ITE_NUMERO_ASIENTO,
-                    ITE_CLASE,
-                    ITE_PRECIO_UNITARIO,
-                    ITE_CANTIDAD
-                FROM AER_ITEMCARRITO
-                WHERE ITE_ID_ITEM_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("ItemCarritoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -73,25 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ItemCarritoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_ITEMCARRITO
-                (
-                    ITE_ID_CARRITO,
-                    ITE_ID_VUELO,
-                    ITE_NUMERO_ASIENTO,
-                    ITE_CLASE,
-                    ITE_PRECIO_UNITARIO,
-                    ITE_CANTIDAD
-                )
-                VALUES
-                (
-                    :idCarrito,
-                    :idVuelo,
-                    :numeroAsiento,
-                    :clase,
-                    :precioUnitario,
-                    :cantidad
-                )";
+            var query = _sqlQueryProvider.GetQuery("ItemCarritoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -109,16 +73,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ItemCarritoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_ITEMCARRITO
-                SET
-                    ITE_ID_CARRITO = :idCarrito,
-                    ITE_ID_VUELO = :idVuelo,
-                    ITE_NUMERO_ASIENTO = :numeroAsiento,
-                    ITE_CLASE = :clase,
-                    ITE_PRECIO_UNITARIO = :precioUnitario,
-                    ITE_CANTIDAD = :cantidad
-                WHERE ITE_ID_ITEM_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("ItemCarritoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -137,9 +92,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_ITEMCARRITO
-                WHERE ITE_ID_ITEM_CARRITO = :id";
+            var query = _sqlQueryProvider.GetQuery("ItemCarritoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -165,3 +118,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

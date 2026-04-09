@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,36 +7,19 @@ namespace AeropuertoAPI.Services
     public class EmpleadoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public EmpleadoService(DatabaseSettings settings)
+        public EmpleadoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<EmpleadoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<EmpleadoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    EMP_ID_EMPLEADO,
-                    EMP_NUMERO_EMPLEADO,
-                    EMP_NOMBRES,
-                    EMP_APELLIDOS,
-                    EMP_FECHA_NACIMIENTO,
-                    EMP_DPI,
-                    EMP_NIT,
-                    EMP_DIRECCION,
-                    EMP_TELEFONO,
-                    EMP_EMAIL,
-                    EMP_FECHA_CONTRATACION,
-                    EMP_ID_PUESTO,
-                    EMP_ID_DEPARTAMENTO,
-                    EMP_SALARIO_ACTUAL,
-                    EMP_TIPO_CONTRATO,
-                    EMP_ESTADO
-                FROM AER_EMPLEADO
-                ORDER BY EMP_ID_EMPLEADO";
+            var query = _sqlQueryProvider.GetQuery("EmpleadoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -54,26 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<EmpleadoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    EMP_ID_EMPLEADO,
-                    EMP_NUMERO_EMPLEADO,
-                    EMP_NOMBRES,
-                    EMP_APELLIDOS,
-                    EMP_FECHA_NACIMIENTO,
-                    EMP_DPI,
-                    EMP_NIT,
-                    EMP_DIRECCION,
-                    EMP_TELEFONO,
-                    EMP_EMAIL,
-                    EMP_FECHA_CONTRATACION,
-                    EMP_ID_PUESTO,
-                    EMP_ID_DEPARTAMENTO,
-                    EMP_SALARIO_ACTUAL,
-                    EMP_TIPO_CONTRATO,
-                    EMP_ESTADO
-                FROM AER_EMPLEADO
-                WHERE EMP_ID_EMPLEADO = :id";
+            var query = _sqlQueryProvider.GetQuery("EmpleadoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -91,43 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(EmpleadoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_EMPLEADO
-                (
-                    EMP_NUMERO_EMPLEADO,
-                    EMP_NOMBRES,
-                    EMP_APELLIDOS,
-                    EMP_FECHA_NACIMIENTO,
-                    EMP_DPI,
-                    EMP_NIT,
-                    EMP_DIRECCION,
-                    EMP_TELEFONO,
-                    EMP_EMAIL,
-                    EMP_FECHA_CONTRATACION,
-                    EMP_ID_PUESTO,
-                    EMP_ID_DEPARTAMENTO,
-                    EMP_SALARIO_ACTUAL,
-                    EMP_TIPO_CONTRATO,
-                    EMP_ESTADO
-                )
-                VALUES
-                (
-                    :numeroEmpleado,
-                    :nombres,
-                    :apellidos,
-                    :fechaNacimiento,
-                    :dpi,
-                    :nit,
-                    :direccion,
-                    :telefono,
-                    :email,
-                    :fechaContratacion,
-                    :idPuesto,
-                    :idDepartamento,
-                    :salarioActual,
-                    :tipoContrato,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("EmpleadoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -155,25 +83,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, EmpleadoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_EMPLEADO
-                SET
-                    EMP_NUMERO_EMPLEADO = :numeroEmpleado,
-                    EMP_NOMBRES = :nombres,
-                    EMP_APELLIDOS = :apellidos,
-                    EMP_FECHA_NACIMIENTO = :fechaNacimiento,
-                    EMP_DPI = :dpi,
-                    EMP_NIT = :nit,
-                    EMP_DIRECCION = :direccion,
-                    EMP_TELEFONO = :telefono,
-                    EMP_EMAIL = :email,
-                    EMP_FECHA_CONTRATACION = :fechaContratacion,
-                    EMP_ID_PUESTO = :idPuesto,
-                    EMP_ID_DEPARTAMENTO = :idDepartamento,
-                    EMP_SALARIO_ACTUAL = :salarioActual,
-                    EMP_TIPO_CONTRATO = :tipoContrato,
-                    EMP_ESTADO = :estado
-                WHERE EMP_ID_EMPLEADO = :id";
+            var query = _sqlQueryProvider.GetQuery("EmpleadoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -202,9 +112,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_EMPLEADO
-                WHERE EMP_ID_EMPLEADO = :id";
+            var query = _sqlQueryProvider.GetQuery("EmpleadoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

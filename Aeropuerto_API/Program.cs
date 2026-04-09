@@ -9,6 +9,7 @@ builder.Services.AddSingleton(new DatabaseSettings
 {
     ConnectionString = connectionString ?? throw new InvalidOperationException("No se encontró la cadena de conexión OracleDb.")
 });
+builder.Services.AddSingleton<SqlQueryProvider>();
 //servicios 
 builder.Services.AddScoped<TestConnectionService>();
 builder.Services.AddScoped<AerolineaService>();

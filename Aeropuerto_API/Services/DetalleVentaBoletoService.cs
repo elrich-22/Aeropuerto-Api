@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,25 +7,19 @@ namespace AeropuertoAPI.Services
     public class DetalleVentaBoletoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public DetalleVentaBoletoService(DatabaseSettings settings)
+        public DetalleVentaBoletoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<DetalleVentaBoletoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<DetalleVentaBoletoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    DEV_ID_DETALLE_VENTA,
-                    DEV_ID_VENTA,
-                    DEV_ID_RESERVA,
-                    DEV_PRECIO_BASE,
-                    DEV_CARGOS_ADICIONALES
-                FROM AER_DETALLEVENTABOLETO
-                ORDER BY DEV_ID_DETALLE_VENTA";
+            var query = _sqlQueryProvider.GetQuery("DetalleVentaBoletoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -43,15 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<DetalleVentaBoletoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    DEV_ID_DETALLE_VENTA,
-                    DEV_ID_VENTA,
-                    DEV_ID_RESERVA,
-                    DEV_PRECIO_BASE,
-                    DEV_CARGOS_ADICIONALES
-                FROM AER_DETALLEVENTABOLETO
-                WHERE DEV_ID_DETALLE_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleVentaBoletoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -69,21 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(DetalleVentaBoletoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_DETALLEVENTABOLETO
-                (
-                    DEV_ID_VENTA,
-                    DEV_ID_RESERVA,
-                    DEV_PRECIO_BASE,
-                    DEV_CARGOS_ADICIONALES
-                )
-                VALUES
-                (
-                    :idVenta,
-                    :idReserva,
-                    :precioBase,
-                    :cargosAdicionales
-                )";
+            var query = _sqlQueryProvider.GetQuery("DetalleVentaBoletoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -99,14 +71,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, DetalleVentaBoletoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_DETALLEVENTABOLETO
-                SET
-                    DEV_ID_VENTA = :idVenta,
-                    DEV_ID_RESERVA = :idReserva,
-                    DEV_PRECIO_BASE = :precioBase,
-                    DEV_CARGOS_ADICIONALES = :cargosAdicionales
-                WHERE DEV_ID_DETALLE_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleVentaBoletoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -123,9 +88,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_DETALLEVENTABOLETO
-                WHERE DEV_ID_DETALLE_VENTA = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleVentaBoletoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

@@ -7,28 +7,19 @@ namespace AeropuertoAPI.Services
     public class AuditoriaService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public AuditoriaService(DatabaseSettings settings)
+        public AuditoriaService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<AuditoriaResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<AuditoriaResponseDto>();
 
-            const string query = @"
-                SELECT
-                    AUD_ID_AUDITORIA,
-                    AUD_TABLA_AFECTADA,
-                    AUD_OPERACION,
-                    AUD_USUARIO,
-                    AUD_FECHA_HORA,
-                    AUD_IP_ADDRESS,
-                    AUD_DATOS_ANTERIORES,
-                    AUD_DATOS_NUEVOS
-                FROM AER_AUDITORIA
-                ORDER BY AUD_ID_AUDITORIA";
+            var query = _sqlQueryProvider.GetQuery("AuditoriaService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -46,18 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<AuditoriaResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    AUD_ID_AUDITORIA,
-                    AUD_TABLA_AFECTADA,
-                    AUD_OPERACION,
-                    AUD_USUARIO,
-                    AUD_FECHA_HORA,
-                    AUD_IP_ADDRESS,
-                    AUD_DATOS_ANTERIORES,
-                    AUD_DATOS_NUEVOS
-                FROM AER_AUDITORIA
-                WHERE AUD_ID_AUDITORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AuditoriaService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -75,27 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(AuditoriaCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_AUDITORIA
-                (
-                    AUD_TABLA_AFECTADA,
-                    AUD_OPERACION,
-                    AUD_USUARIO,
-                    AUD_FECHA_HORA,
-                    AUD_IP_ADDRESS,
-                    AUD_DATOS_ANTERIORES,
-                    AUD_DATOS_NUEVOS
-                )
-                VALUES
-                (
-                    :tablaAfectada,
-                    :operacion,
-                    :usuario,
-                    :fechaHora,
-                    :ipAddress,
-                    :datosAnteriores,
-                    :datosNuevos
-                )";
+            var query = _sqlQueryProvider.GetQuery("AuditoriaService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -114,17 +74,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, AuditoriaUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_AUDITORIA
-                SET
-                    AUD_TABLA_AFECTADA = :tablaAfectada,
-                    AUD_OPERACION = :operacion,
-                    AUD_USUARIO = :usuario,
-                    AUD_FECHA_HORA = :fechaHora,
-                    AUD_IP_ADDRESS = :ipAddress,
-                    AUD_DATOS_ANTERIORES = :datosAnteriores,
-                    AUD_DATOS_NUEVOS = :datosNuevos
-                WHERE AUD_ID_AUDITORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AuditoriaService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -144,9 +94,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_AUDITORIA
-                WHERE AUD_ID_AUDITORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("AuditoriaService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -173,3 +121,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

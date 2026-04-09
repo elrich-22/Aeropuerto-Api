@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,23 +7,19 @@ namespace AeropuertoAPI.Services
     public class CategoriaRepuestoService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public CategoriaRepuestoService(DatabaseSettings settings)
+        public CategoriaRepuestoService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<CategoriaRepuestoResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<CategoriaRepuestoResponseDto>();
 
-            const string query = @"
-                SELECT
-                    CAT_ID_CATEGORIA,
-                    CAT_NOMBRE,
-                    CAT_DESCRIPCION
-                FROM AER_CATEGORIAREPUESTO
-                ORDER BY CAT_ID_CATEGORIA";
+            var query = _sqlQueryProvider.GetQuery("CategoriaRepuestoService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -41,13 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<CategoriaRepuestoResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    CAT_ID_CATEGORIA,
-                    CAT_NOMBRE,
-                    CAT_DESCRIPCION
-                FROM AER_CATEGORIAREPUESTO
-                WHERE CAT_ID_CATEGORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("CategoriaRepuestoService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -65,17 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(CategoriaRepuestoCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_CATEGORIAREPUESTO
-                (
-                    CAT_NOMBRE,
-                    CAT_DESCRIPCION
-                )
-                VALUES
-                (
-                    :nombre,
-                    :descripcion
-                )";
+            var query = _sqlQueryProvider.GetQuery("CategoriaRepuestoService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -89,12 +69,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, CategoriaRepuestoUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_CATEGORIAREPUESTO
-                SET
-                    CAT_NOMBRE = :nombre,
-                    CAT_DESCRIPCION = :descripcion
-                WHERE CAT_ID_CATEGORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("CategoriaRepuestoService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -109,9 +84,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_CATEGORIAREPUESTO
-                WHERE CAT_ID_CATEGORIA = :id";
+            var query = _sqlQueryProvider.GetQuery("CategoriaRepuestoService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();

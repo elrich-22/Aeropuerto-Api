@@ -1,0 +1,26 @@
+INSERT INTO AER_OBJETOPERDIDO
+                (
+                    OBJ_ID_VUELO,
+                    OBJ_ID_AEROPUERTO,
+                    OBJ_DESCRIPCION,
+                    OBJ_FECHA_REPORTE,
+                    OBJ_UBICACION_ENCONTRADO,
+                    OBJ_ESTADO,
+                    OBJ_NOMBRE_REPORTANTE,
+                    OBJ_CONTACTO_REPORTANTE,
+                    OBJ_FECHA_ENTREGA,
+                    OBJ_NOMBRE_RECLAMANTE
+                )
+                VALUES
+                (
+                    :idVuelo,
+                    :idAeropuerto,
+                    :descripcion,
+                    :fechaReporte,
+                    :ubicacionEncontrado,
+                    :estado,
+                    :nombreReportante,
+                    :contactoReportante,
+                    :fechaEntrega,
+                    :nombreReclamante
+                )

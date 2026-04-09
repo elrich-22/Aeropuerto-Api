@@ -1,0 +1,2 @@
+DELETE FROM AER_USOPROMOCION
+                WHERE USO_ID_USO = :id

@@ -1,0 +1,20 @@
+INSERT INTO AER_MOVIMIENTOREPUESTO
+                (
+                    MOV_ID_REPUESTO,
+                    MOV_TIPO_MOVIMIENTO,
+                    MOV_CANTIDAD,
+                    MOV_FECHA_MOVIMIENTO,
+                    MOV_ID_EMPLEADO,
+                    MOV_MOTIVO,
+                    MOV_REFERENCIA
+                )
+                VALUES
+                (
+                    :idRepuesto,
+                    :tipoMovimiento,
+                    :cantidad,
+                    :fechaMovimiento,
+                    :idEmpleado,
+                    :motivo,
+                    :referencia
+                )

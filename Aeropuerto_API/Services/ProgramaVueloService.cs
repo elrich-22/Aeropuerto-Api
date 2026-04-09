@@ -1,4 +1,4 @@
-﻿using AeropuertoAPI.DTOs;
+using AeropuertoAPI.DTOs;
 using AeropuertoAPI.Models;
 using Oracle.ManagedDataAccess.Client;
 
@@ -7,31 +7,19 @@ namespace AeropuertoAPI.Services
     public class ProgramaVueloService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public ProgramaVueloService(DatabaseSettings settings)
+        public ProgramaVueloService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<ProgramaVueloResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<ProgramaVueloResponseDto>();
 
-            const string query = @"
-                SELECT
-                    PRV_ID,
-                    PRV_NUMERO_VUELO,
-                    PRV_ID_AEROLINEA,
-                    PRV_ID_AEROPUERTO_ORIGEN,
-                    PRV_ID_AEROPUERTO_DESTINO,
-                    PRV_HORA_SALIDA_PROGRAMADA,
-                    PRV_HORA_LLEGADA_PROGRAMADA,
-                    PRV_DURACION_ESTIMADA,
-                    PRV_TIPO_VUELO,
-                    PRV_ESTADO,
-                    PRV_FECHA_CREACION
-                FROM AER_PROGRAMAVUELO
-                ORDER BY PRV_ID";
+            var query = _sqlQueryProvider.GetQuery("ProgramaVueloService/ObtenerTodosAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -62,21 +50,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<ProgramaVueloResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    PRV_ID,
-                    PRV_NUMERO_VUELO,
-                    PRV_ID_AEROLINEA,
-                    PRV_ID_AEROPUERTO_ORIGEN,
-                    PRV_ID_AEROPUERTO_DESTINO,
-                    PRV_HORA_SALIDA_PROGRAMADA,
-                    PRV_HORA_LLEGADA_PROGRAMADA,
-                    PRV_DURACION_ESTIMADA,
-                    PRV_TIPO_VUELO,
-                    PRV_ESTADO,
-                    PRV_FECHA_CREACION
-                FROM AER_PROGRAMAVUELO
-                WHERE PRV_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("ProgramaVueloService/ObtenerPorIdAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -109,31 +83,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(ProgramaVueloCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_PROGRAMAVUELO
-                (
-                    PRV_NUMERO_VUELO,
-                    PRV_ID_AEROLINEA,
-                    PRV_ID_AEROPUERTO_ORIGEN,
-                    PRV_ID_AEROPUERTO_DESTINO,
-                    PRV_HORA_SALIDA_PROGRAMADA,
-                    PRV_HORA_LLEGADA_PROGRAMADA,
-                    PRV_DURACION_ESTIMADA,
-                    PRV_TIPO_VUELO,
-                    PRV_ESTADO
-                )
-                VALUES
-                (
-                    :numeroVuelo,
-                    :idAerolinea,
-                    :idAeropuertoOrigen,
-                    :idAeropuertoDestino,
-                    :horaSalidaProgramada,
-                    :horaLlegadaProgramada,
-                    :duracionEstimada,
-                    :tipoVuelo,
-                    :estado
-                )";
+            var query = _sqlQueryProvider.GetQuery("ProgramaVueloService/CrearAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -155,19 +105,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, ProgramaVueloUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_PROGRAMAVUELO
-                SET
-                    PRV_NUMERO_VUELO = :numeroVuelo,
-                    PRV_ID_AEROLINEA = :idAerolinea,
-                    PRV_ID_AEROPUERTO_ORIGEN = :idAeropuertoOrigen,
-                    PRV_ID_AEROPUERTO_DESTINO = :idAeropuertoDestino,
-                    PRV_HORA_SALIDA_PROGRAMADA = :horaSalidaProgramada,
-                    PRV_HORA_LLEGADA_PROGRAMADA = :horaLlegadaProgramada,
-                    PRV_DURACION_ESTIMADA = :duracionEstimada,
-                    PRV_TIPO_VUELO = :tipoVuelo,
-                    PRV_ESTADO = :estado
-                WHERE PRV_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("ProgramaVueloService/ActualizarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();
@@ -190,9 +128,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_PROGRAMAVUELO
-                WHERE PRV_ID = :id";
+            var query = _sqlQueryProvider.GetQuery("ProgramaVueloService/EliminarAsync.sql");
 
             await using var connection = new OracleConnection(_connectionString);
             await connection.OpenAsync();

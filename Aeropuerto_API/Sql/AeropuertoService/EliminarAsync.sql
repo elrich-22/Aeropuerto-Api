@@ -1,0 +1,2 @@
+DELETE FROM AER_AEROPUERTO
+                WHERE AER_ID = :id

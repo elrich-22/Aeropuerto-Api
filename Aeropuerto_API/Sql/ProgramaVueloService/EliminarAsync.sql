@@ -1,0 +1,2 @@
+DELETE FROM AER_PROGRAMAVUELO
+                WHERE PRV_ID = :id

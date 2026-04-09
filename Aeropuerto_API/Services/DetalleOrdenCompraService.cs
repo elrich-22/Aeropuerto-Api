@@ -7,26 +7,19 @@ namespace AeropuertoAPI.Services
     public class DetalleOrdenCompraService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public DetalleOrdenCompraService(DatabaseSettings settings)
+        public DetalleOrdenCompraService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<DetalleOrdenCompraResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<DetalleOrdenCompraResponseDto>();
 
-            const string query = @"
-                SELECT
-                    DET_ID_DETALLE,
-                    DET_ID_ORDEN_COMPRA,
-                    DET_ID_REPUESTO,
-                    DET_CANTIDAD,
-                    DET_PRECIO_UNITARIO,
-                    DET_SUBTOTAL
-                FROM AER_DETALLEORDENCOMPRA
-                ORDER BY DET_ID_DETALLE";
+            var query = _sqlQueryProvider.GetQuery("DetalleOrdenCompraService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -44,16 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<DetalleOrdenCompraResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    DET_ID_DETALLE,
-                    DET_ID_ORDEN_COMPRA,
-                    DET_ID_REPUESTO,
-                    DET_CANTIDAD,
-                    DET_PRECIO_UNITARIO,
-                    DET_SUBTOTAL
-                FROM AER_DETALLEORDENCOMPRA
-                WHERE DET_ID_DETALLE = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleOrdenCompraService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -71,23 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(DetalleOrdenCompraCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_DETALLEORDENCOMPRA
-                (
-                    DET_ID_ORDEN_COMPRA,
-                    DET_ID_REPUESTO,
-                    DET_CANTIDAD,
-                    DET_PRECIO_UNITARIO,
-                    DET_SUBTOTAL
-                )
-                VALUES
-                (
-                    :idOrdenCompra,
-                    :idRepuesto,
-                    :cantidad,
-                    :precioUnitario,
-                    :subtotal
-                )";
+            var query = _sqlQueryProvider.GetQuery("DetalleOrdenCompraService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -104,15 +72,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, DetalleOrdenCompraUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_DETALLEORDENCOMPRA
-                SET
-                    DET_ID_ORDEN_COMPRA = :idOrdenCompra,
-                    DET_ID_REPUESTO = :idRepuesto,
-                    DET_CANTIDAD = :cantidad,
-                    DET_PRECIO_UNITARIO = :precioUnitario,
-                    DET_SUBTOTAL = :subtotal
-                WHERE DET_ID_DETALLE = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleOrdenCompraService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -130,9 +90,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_DETALLEORDENCOMPRA
-                WHERE DET_ID_DETALLE = :id";
+            var query = _sqlQueryProvider.GetQuery("DetalleOrdenCompraService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -157,3 +115,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+

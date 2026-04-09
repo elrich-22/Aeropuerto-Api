@@ -7,30 +7,19 @@ namespace AeropuertoAPI.Services
     public class BusquedaVueloService
     {
         private readonly string _connectionString;
+        private readonly SqlQueryProvider _sqlQueryProvider;
 
-        public BusquedaVueloService(DatabaseSettings settings)
+        public BusquedaVueloService(DatabaseSettings settings, SqlQueryProvider sqlQueryProvider)
         {
             _connectionString = settings.ConnectionString;
+            _sqlQueryProvider = sqlQueryProvider;
         }
 
         public async Task<List<BusquedaVueloResponseDto>> ObtenerTodosAsync()
         {
             var lista = new List<BusquedaVueloResponseDto>();
 
-            const string query = @"
-                SELECT
-                    BUS_ID_BUSQUEDA,
-                    BUS_ID_SESION,
-                    BUS_ID_AEROPUERTO_ORIGEN,
-                    BUS_ID_AEROPUERTO_DESTINO,
-                    BUS_FECHA_IDA,
-                    BUS_FECHA_VUELTA,
-                    BUS_NUMERO_PASAJEROS,
-                    BUS_CLASE,
-                    BUS_FECHA_BUSQUEDA,
-                    BUS_SE_CONVIRTIO_COMPRA
-                FROM AER_BUSQUEDAVUELO
-                ORDER BY BUS_ID_BUSQUEDA";
+            var query = _sqlQueryProvider.GetQuery("BusquedaVueloService/ObtenerTodosAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -48,20 +37,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<BusquedaVueloResponseDto?> ObtenerPorIdAsync(int id)
         {
-            const string query = @"
-                SELECT
-                    BUS_ID_BUSQUEDA,
-                    BUS_ID_SESION,
-                    BUS_ID_AEROPUERTO_ORIGEN,
-                    BUS_ID_AEROPUERTO_DESTINO,
-                    BUS_FECHA_IDA,
-                    BUS_FECHA_VUELTA,
-                    BUS_NUMERO_PASAJEROS,
-                    BUS_CLASE,
-                    BUS_FECHA_BUSQUEDA,
-                    BUS_SE_CONVIRTIO_COMPRA
-                FROM AER_BUSQUEDAVUELO
-                WHERE BUS_ID_BUSQUEDA = :id";
+            var query = _sqlQueryProvider.GetQuery("BusquedaVueloService/ObtenerPorIdAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -79,31 +55,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> CrearAsync(BusquedaVueloCreateDto dto)
         {
-            const string query = @"
-                INSERT INTO AER_BUSQUEDAVUELO
-                (
-                    BUS_ID_SESION,
-                    BUS_ID_AEROPUERTO_ORIGEN,
-                    BUS_ID_AEROPUERTO_DESTINO,
-                    BUS_FECHA_IDA,
-                    BUS_FECHA_VUELTA,
-                    BUS_NUMERO_PASAJEROS,
-                    BUS_CLASE,
-                    BUS_FECHA_BUSQUEDA,
-                    BUS_SE_CONVIRTIO_COMPRA
-                )
-                VALUES
-                (
-                    :idSesion,
-                    :idAeropuertoOrigen,
-                    :idAeropuertoDestino,
-                    :fechaIda,
-                    :fechaVuelta,
-                    :numeroPasajeros,
-                    :clase,
-                    :fechaBusqueda,
-                    :seConvirtioCompra
-                )";
+            var query = _sqlQueryProvider.GetQuery("BusquedaVueloService/CrearAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -124,19 +76,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> ActualizarAsync(int id, BusquedaVueloUpdateDto dto)
         {
-            const string query = @"
-                UPDATE AER_BUSQUEDAVUELO
-                SET
-                    BUS_ID_SESION = :idSesion,
-                    BUS_ID_AEROPUERTO_ORIGEN = :idAeropuertoOrigen,
-                    BUS_ID_AEROPUERTO_DESTINO = :idAeropuertoDestino,
-                    BUS_FECHA_IDA = :fechaIda,
-                    BUS_FECHA_VUELTA = :fechaVuelta,
-                    BUS_NUMERO_PASAJEROS = :numeroPasajeros,
-                    BUS_CLASE = :clase,
-                    BUS_FECHA_BUSQUEDA = :fechaBusqueda,
-                    BUS_SE_CONVIRTIO_COMPRA = :seConvirtioCompra
-                WHERE BUS_ID_BUSQUEDA = :id";
+            var query = _sqlQueryProvider.GetQuery("BusquedaVueloService/ActualizarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -158,9 +98,7 @@ namespace AeropuertoAPI.Services
 
         public async Task<bool> EliminarAsync(int id)
         {
-            const string query = @"
-                DELETE FROM AER_BUSQUEDAVUELO
-                WHERE BUS_ID_BUSQUEDA = :id";
+            var query = _sqlQueryProvider.GetQuery("BusquedaVueloService/EliminarAsync.sql");
 
             await using var conn = new OracleConnection(_connectionString);
             await conn.OpenAsync();
@@ -189,3 +127,4 @@ namespace AeropuertoAPI.Services
         }
     }
 }
+
