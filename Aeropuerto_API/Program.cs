@@ -39,6 +39,21 @@ builder.Services.AddScoped<DetalleVentaBoletoService>();
 builder.Services.AddScoped<DiasVueloService>();
 builder.Services.AddScoped<EscalaTecnicaService>();
 builder.Services.AddScoped<OrdenCompraRepuestoService>();
+builder.Services.AddScoped<AsistenciaService>();
+builder.Services.AddScoped<LicenciaEmpleadoService>();
+builder.Services.AddScoped<PlanillaService>();
+builder.Services.AddScoped<SesionUsuarioService>();
+builder.Services.AddScoped<BusquedaVueloService>();
+builder.Services.AddScoped<ClickDestinoService>();
+builder.Services.AddScoped<CarritoCompraService>();
+builder.Services.AddScoped<ItemCarritoService>();
+builder.Services.AddScoped<PreferenciaClienteService>();
+builder.Services.AddScoped<PromocionService>();
+builder.Services.AddScoped<UsoPromocionService>();
+builder.Services.AddScoped<AuditoriaService>();
+builder.Services.AddScoped<ArrestoService>();
+builder.Services.AddScoped<ObjetoPerdidoService>();
+builder.Services.AddScoped<DetalleOrdenCompraService>();
 
 
 builder.Services.AddControllers();
